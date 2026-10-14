@@ -24,20 +24,24 @@
   ::-webkit-scrollbar {
     width: 8px;
   }
+
   ::-webkit-scrollbar-track {
     background: #faf8f5;
   }
+
   ::-webkit-scrollbar-thumb {
     background: #dfbc74;
     border-radius: 4px;
     border: 2px solid #faf8f5;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: #b8862d;
   }
 }
 
 @layer utilities {
+
   /* Glassmorphism - Light Gold & White */
   .glass-panel {
     background: rgba(255, 255, 255, 0.90);
@@ -111,15 +115,20 @@
 /* Subtle gold background grid */
 .tech-grid-pattern {
   background-size: 40px 40px;
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(212, 164, 68, 0.08) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(212, 164, 68, 0.08) 1px, transparent 1px);
 }
 
 /* Radar rotation */
 @keyframes radarSweep {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-radar {
