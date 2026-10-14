@@ -58,23 +58,23 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="relative pt-10 sm:pt-14 pb-6 sm:pb-8 overflow-hidden border-b border-gold-400/20 dark:border-gold-500/15">
+    <section id="contact" className="relative pt-10 sm:pt-14 pb-6 sm:pb-8 overflow-hidden border-b border-gold-400/20">
       {/* Background golden radiance - GPU accelerated */}
-      <div className="absolute top-1/3 left-1/4 w-[420px] h-[420px] bg-gold-300/15 dark:bg-gold-600/10 rounded-full blur-[65px] pointer-events-none -z-10 transform-gpu will-change-transform" />
-      <div className="absolute bottom-10 right-1/4 w-[350px] h-[350px] bg-amber-200/15 dark:bg-amber-700/10 rounded-full blur-[55px] pointer-events-none -z-10 transform-gpu will-change-transform" />
+      <div className="absolute top-1/3 left-1/4 w-[420px] h-[420px] bg-gold-300/15 rounded-full blur-[65px] pointer-events-none -z-10 transform-gpu will-change-transform" />
+      <div className="absolute bottom-10 right-1/4 w-[350px] h-[350px] bg-amber-200/15 rounded-full blur-[55px] pointer-events-none -z-10 transform-gpu will-change-transform" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-800 dark:text-gold-300 text-xs font-mono tracking-widest uppercase mb-3 font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono tracking-widest uppercase mb-3 font-semibold">
             <MessageSquare className="w-3.5 h-3.5" />
             <span>Initiate Transmission</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-stone-900 dark:text-stone-100 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight">
             Let's Build Something New
           </h2>
-          <p className="text-stone-600 dark:text-stone-300 mt-3 text-sm sm:text-base">
+          <p className="text-stone-700 mt-3 text-sm sm:text-base font-normal">
             Have an idea!, project or opportunity!? Let's connect.
           </p>
           <div className="mt-3 w-16 h-1 bg-gradient-to-r from-gold-400 via-gold-500 to-amber-600 mx-auto rounded-full" />
@@ -85,28 +85,28 @@ export default function Contact() {
           {/* Left Column: Direct Connect & Channels */}
           <div className="lg:col-span-5 flex flex-col gap-6">
             <div className="glass-card p-8 rounded-3xl relative overflow-hidden">
-              <h3 className="text-xl font-display font-bold text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="text-xl font-display font-bold text-stone-900 mb-2">
                 Open for Collaborations
               </h3>
-              <p className="text-sm text-stone-600 dark:text-stone-300 mb-6 leading-relaxed font-normal">
+              <p className="text-sm text-stone-700 mb-6 leading-relaxed font-normal">
                 Currently exploring internship opportunities, research collaborations, and impactful AI/IoT engineering projects.
               </p>
 
               {/* Contact Channels (Details aligned under title) */}
               <div className="space-y-3.5 mb-6">
                 {/* Email Item */}
-                <div className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-warmwhite-100/90 dark:bg-stone-900/60 border border-gold-400/25 hover:border-gold-400/50 hover:bg-gold-50/40 dark:hover:bg-stone-800/80 transition-all group">
+                <div className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-gold-400/30 hover:border-gold-400 hover:bg-gold-50/50 transition-all shadow-xs group">
                   <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-stone-200/80 dark:bg-stone-800 text-stone-900 dark:text-stone-100 flex items-center justify-center shrink-0 border border-stone-300/40 dark:border-stone-700/60 shadow-sm group-hover:scale-105 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-all">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gold-500/10 text-gold-700 flex items-center justify-center shrink-0 border border-gold-400/30 shadow-xs group-hover:scale-105 group-hover:text-gold-900 transition-all">
                       <Mail className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <span className="block text-[11px] font-mono font-semibold tracking-widest text-stone-500 dark:text-stone-400 uppercase">
+                      <span className="block text-[11px] font-mono font-bold tracking-widest text-gold-900 uppercase">
                         EMAIL
                       </span>
                       <a
                         href={`mailto:${placeholderEmail}`}
-                        className="block text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 hover:text-gold-600 dark:hover:text-gold-400 truncate transition-colors"
+                        className="block text-sm sm:text-base font-bold text-stone-900 hover:text-gold-700 truncate transition-colors"
                         title="Send email"
                       >
                         {placeholderEmail}
@@ -116,7 +116,7 @@ export default function Contact() {
                   <button
                     onClick={handleCopyEmail}
                     type="button"
-                    className="p-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-gold-500/15 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 hover:text-gold-700 dark:hover:text-gold-300 border border-gold-400/30 transition-all shadow-sm shrink-0 ml-2"
+                    className="p-2 rounded-xl bg-white hover:bg-gold-500/15 text-stone-700 hover:text-gold-900 border border-gold-400/30 transition-all shadow-xs shrink-0 ml-2"
                     aria-label="Copy email address"
                     title="Copy email"
                   >
@@ -125,18 +125,18 @@ export default function Contact() {
                 </div>
 
                 {/* Phone Item */}
-                <div className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-warmwhite-100/90 dark:bg-stone-900/60 border border-gold-400/25 hover:border-gold-400/50 hover:bg-gold-50/40 dark:hover:bg-stone-800/80 transition-all group">
+                <div className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-gold-400/30 hover:border-gold-400 hover:bg-gold-50/50 transition-all shadow-xs group">
                   <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-stone-200/80 dark:bg-stone-800 text-stone-900 dark:text-stone-100 flex items-center justify-center shrink-0 border border-stone-300/40 dark:border-stone-700/60 shadow-sm group-hover:scale-105 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-all">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gold-500/10 text-gold-700 flex items-center justify-center shrink-0 border border-gold-400/30 shadow-xs group-hover:scale-105 group-hover:text-gold-900 transition-all">
                       <Phone className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <span className="block text-[11px] font-mono font-semibold tracking-widest text-stone-500 dark:text-stone-400 uppercase">
+                      <span className="block text-[11px] font-mono font-bold tracking-widest text-gold-900 uppercase">
                         PHONE
                       </span>
                       <a
                         href={`tel:${phoneNumber.replace(/[\s+]/g, '')}`}
-                        className="block text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 hover:text-gold-600 dark:hover:text-gold-400 truncate transition-colors"
+                        className="block text-sm sm:text-base font-bold text-stone-900 hover:text-gold-700 truncate transition-colors"
                         title="Call phone number"
                       >
                         {phoneNumber}
@@ -146,7 +146,7 @@ export default function Contact() {
                   <button
                     onClick={handleCopyPhone}
                     type="button"
-                    className="p-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-gold-500/15 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 hover:text-gold-700 dark:hover:text-gold-300 border border-gold-400/30 transition-all shadow-sm shrink-0 ml-2"
+                    className="p-2 rounded-xl bg-white hover:bg-gold-500/15 text-stone-700 hover:text-gold-900 border border-gold-400/30 transition-all shadow-xs shrink-0 ml-2"
                     aria-label="Copy phone number"
                     title="Copy phone"
                   >
@@ -155,16 +155,16 @@ export default function Contact() {
                 </div>
 
                 {/* Location Item */}
-                <div className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-warmwhite-100/90 dark:bg-stone-900/60 border border-gold-400/25 hover:border-gold-400/50 hover:bg-gold-50/40 dark:hover:bg-stone-800/80 transition-all group">
+                <div className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-gold-400/30 hover:border-gold-400 hover:bg-gold-50/50 transition-all shadow-xs group">
                   <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-stone-200/80 dark:bg-stone-800 text-stone-900 dark:text-stone-100 flex items-center justify-center shrink-0 border border-stone-300/40 dark:border-stone-700/60 shadow-sm group-hover:scale-105 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-all">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gold-500/10 text-gold-700 flex items-center justify-center shrink-0 border border-gold-400/30 shadow-xs group-hover:scale-105 group-hover:text-gold-900 transition-all">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <span className="block text-[11px] font-mono font-semibold tracking-widest text-stone-500 dark:text-stone-400 uppercase">
+                      <span className="block text-[11px] font-mono font-bold tracking-widest text-gold-900 uppercase">
                         LOCATION
                       </span>
-                      <span className="block text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">
+                      <span className="block text-sm sm:text-base font-bold text-stone-900">
                         {locationText}
                       </span>
                     </div>
@@ -179,7 +179,7 @@ export default function Contact() {
                     href="https://github.com/bharathlokesh"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-gold-700 dark:hover:text-gold-400 border border-gold-400/30 hover:border-gold-500 transition-all shadow-sm hover:-translate-y-0.5"
+                    className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"
                     aria-label="GitHub Profile"
                     title="GitHub"
                   >
@@ -190,7 +190,7 @@ export default function Contact() {
                     href="https://www.linkedin.com/in/bharath-lokesh07/?isSelfProfile=true"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-gold-700 dark:hover:text-gold-400 border border-gold-400/30 hover:border-gold-500 transition-all shadow-sm hover:-translate-y-0.5"
+                    className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"
                     aria-label="LinkedIn Profile"
                     title="LinkedIn"
                   >
@@ -201,7 +201,7 @@ export default function Contact() {
                     href="https://www.instagram.com/bhrrtth/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-gold-700 dark:hover:text-gold-400 border border-gold-400/30 hover:border-gold-500 transition-all shadow-sm hover:-translate-y-0.5"
+                    className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"
                     aria-label="Instagram Profile"
                     title="Instagram"
                   >
@@ -210,7 +210,7 @@ export default function Contact() {
 
                   <a
                     href={`mailto:${placeholderEmail}`}
-                    className="p-2.5 rounded-xl bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-gold-700 dark:hover:text-gold-400 border border-gold-400/30 hover:border-gold-500 transition-all shadow-sm hover:-translate-y-0.5"
+                    className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"
                     aria-label="Send direct email"
                     title="Email"
                   >
@@ -225,19 +225,19 @@ export default function Contact() {
           {/* Right Column: Contact Message Form */}
           <div className="lg:col-span-7">
             <div className="glass-card p-8 rounded-3xl relative overflow-hidden">
-              <h3 className="text-xl font-display font-bold text-stone-900 dark:text-stone-100 mb-6">
+              <h3 className="text-xl font-display font-bold text-stone-900 mb-6">
                 Send a Direct Message
               </h3>
 
               {status === 'success' ? (
                 <div className="p-8 rounded-2xl bg-gold-500/15 border border-gold-400/40 text-center animate-in zoom-in-95 duration-300">
-                  <div className="w-12 h-12 rounded-full bg-gold-500/20 text-gold-700 dark:text-gold-300 flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 rounded-full bg-gold-500/20 text-gold-800 flex items-center justify-center mx-auto mb-3">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h4 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-1">
+                  <h4 className="text-lg font-bold text-stone-900 mb-1">
                     Message Transmitted Successfully!
                   </h4>
-                  <p className="text-xs text-stone-600 dark:text-stone-300 max-w-sm mx-auto">
+                  <p className="text-xs text-stone-700 max-w-sm mx-auto font-normal">
                     Thank you for reaching out. Bharath Lokesh will review your message and connect back promptly.
                   </p>
                 </div>
@@ -246,7 +246,7 @@ export default function Contact() {
                   <div>
                     <label
                       htmlFor="contact-name"
-                      className="block text-xs font-mono font-semibold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2"
+                      className="block text-xs font-mono font-bold text-stone-800 uppercase tracking-wider mb-2"
                     >
                       Name
                     </label>
@@ -258,14 +258,14 @@ export default function Contact() {
                       value={formData.name}
                       onChange={handleChange}
                       placeholder=" Your Good Name"
-                      className="w-full px-4 py-3 rounded-xl bg-white dark:bg-stone-900/80 border border-gold-400/35 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all text-sm shadow-sm"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-gold-400/40 text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all text-sm shadow-xs"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="contact-email"
-                      className="block text-xs font-mono font-semibold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2"
+                      className="block text-xs font-mono font-bold text-stone-800 uppercase tracking-wider mb-2"
                     >
                       Your Email Address
                     </label>
@@ -277,14 +277,14 @@ export default function Contact() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="Enter Your E-Mail ID"
-                      className="w-full px-4 py-3 rounded-xl bg-white dark:bg-stone-900/80 border border-gold-400/35 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all text-sm shadow-sm"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-gold-400/40 text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all text-sm shadow-xs"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="contact-message"
-                      className="block text-xs font-mono font-semibold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2"
+                      className="block text-xs font-mono font-bold text-stone-800 uppercase tracking-wider mb-2"
                     >
                       Message
                     </label>
@@ -296,23 +296,23 @@ export default function Contact() {
                       value={formData.message}
                       onChange={handleChange}
                       placeholder="Write your project details, inquiry, or opportunity..."
-                      className="w-full px-4 py-3 rounded-xl bg-white dark:bg-stone-900/80 border border-gold-400/35 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all text-sm resize-none shadow-sm"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-gold-400/40 text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all text-sm resize-none shadow-xs"
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
                     disabled={status === 'submitting'}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-stone-950 dark:text-white bg-gradient-to-r from-gold-300 via-gold-400 to-amber-400 dark:from-gold-500 dark:via-gold-600 dark:to-amber-700 hover:from-gold-400 hover:to-amber-500 dark:hover:from-gold-400 dark:hover:to-amber-600 shadow-lg shadow-gold-600/20 transition-all duration-300 disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-stone-950 bg-gradient-to-r from-gold-300 via-gold-400 to-amber-400 hover:from-gold-400 hover:to-amber-500 shadow-lg shadow-gold-600/20 transition-all duration-300 disabled:opacity-50"
                   >
                     {status === 'submitting' ? (
                       <>
-                        <span className="w-4 h-4 border-2 border-stone-950/30 dark:border-white/30 border-t-stone-950 dark:border-t-white rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-stone-950/30 border-t-stone-950 rounded-full animate-spin" />
                         <span>Transmitting Message...</span>
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4 text-stone-950 dark:text-white" />
+                        <Send className="w-4 h-4 text-stone-950" />
                         <span>Send Message</span>
                       </>
                     )}
