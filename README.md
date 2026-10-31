@@ -45,7 +45,7 @@ Specializing in **Artificial Intelligence**, **Machine Learning**, **Computer Vi
 This repository hosts the official source code for **Bharath Lokesh's** personal portfolio. Designed from the ground up to break away from generic templates, it pairs a signature **warm-white, champagne, and metallic gold aesthetic** with an engaging user experience, highlighting technical expertise spanning embedded microcontrollers, computer vision pipelines, and modern web applications.
 
 ### Highlights
-- 🤖 **Interactive AI Companion (AURA):** Embedded companion with Web Speech text-to-speech audio narration and typewriter animation.
+- 🧑‍💻 **Interactive 3D Developer Avatar:** 3D interactive avatar with real-time mouse-tracking tilt, continuous flowing float animation, dynamic specular glare, and Web Speech voice greeting.
 - 🎨 **Original Luxury Tech Theme:** Bespoke palette featuring GPU-accelerated ambient glows, glassmorphic cards, and subtle grid textures.
 - ⚡ **Blazing Fast Performance:** Built on Vite 8 and React 19 for instantaneous hot module replacement and lightweight production bundles.
 - 📱 **Mobile-First & Accessible:** Fully responsive across all display formats with semantic HTML5 and smooth navigation.
@@ -56,7 +56,7 @@ This repository hosts the official source code for **Bharath Lokesh's** personal
 
 | Feature | Description |
 | :--- | :--- |
-| **AURA AI Companion** | Voice greeting powered by the native Web Speech API with real-time typewriter dialogue, audio toggle, and floating bubble. |
+| **3D Developer Avatar** | Interactive 3D perspective card with real-time mouse parallax tilt, flowing floating animation, dynamic specular glare sheen, floating tech chips, and native Web Speech voice greeting. |
 | **Curated Project Showcase** | Domain-based filtering (IoT / Automation, AI / Computer Vision, Web Development) with live metric chips and repository links. |
 | **Interactive Skills Matrix** | Categorized technical competencies spanning Languages (Python, C/C++, Java), Web (React, JS), AI/ML, and Embedded Systems (ESP32, MQTT). |
 | **Academic & Career Timeline** | Interactive timeline featuring Diploma coursework in AI & ML at GTTC Magadi alongside secondary education credentials. |
@@ -95,7 +95,7 @@ myportfolio/
 ├── src/
 │   ├── assets/
 │   │   ├── profile.jpg         # Profile image asset
-│   │   └── robot_transparent.png # AURA AI companion avatar
+│   │   └── developer_3d_transparent.png # Transparent 3D Developer avatar
 │   ├── components/
 │   │   ├── About.jsx           # Bio narrative, core interests & domain cards
 │   │   ├── Certifications.jsx  # Professional credentials & verification links
@@ -103,7 +103,7 @@ myportfolio/
 │   │   ├── Education.jsx       # Academic timeline & GTTC coursework highlights
 │   │   ├── Footer.jsx          # Footer credits & smooth back-to-top trigger
 │   │   ├── Hero.jsx            # Hero section with primary CTAs & availability badge
-│   │   ├── HeroVisual.jsx      # AURA AI Companion (TTS voice & typewriter effect)
+│   │   ├── HeroVisual.jsx      # Interactive 3D Avatar (tilt, floating flow, TTS voice)
 │   │   ├── Icons.jsx           # Custom social and brand SVGs (GitHub, LinkedIn, etc.)
 │   │   ├── Navbar.jsx          # Fixed responsive header & mobile navigation drawer
 │   │   ├── ProjectCard.jsx     # Individual project card with metrics & links
@@ -214,7 +214,7 @@ Skills are managed inside [`src/components/Skills.jsx`](src/components/Skills.js
 ### Replacing Resume & Media
 - **Resume:** Replace `public/resume/Bharath_Resume.pdf` with your updated PDF (keep the filename identical or update references in [`src/components/Hero.jsx`](src/components/Hero.jsx)).
 - **Profile Picture:** Replace `public/profile.jpg` and `src/assets/profile.jpg`.
-- **AI Companion Avatar:** Replace `src/assets/robot_transparent.png` with any transparent PNG of your choice.
+- **3D Avatar Image:** Replace `src/assets/developer_3d_transparent.png` or `public/developer_3d_transparent.png` with any transparent PNG of your choice.
 
 ### Adjusting Base Path
 If hosting under a custom domain (e.g., `https://bharath.dev`) rather than a GitHub Pages subdirectory (`/My-Portfolio/`), update the `base` property in [`vite.config.js`](vite.config.js):

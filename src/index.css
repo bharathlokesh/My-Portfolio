@@ -134,3 +134,32 @@
 .animate-radar {
   animation: radarSweep 8s linear infinite;
 }
+
+/* Subtle, gentle 3D avatar floating */
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes subtleShadow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(0.92);
+    opacity: 0.55;
+  }
+}
+
+.animate-subtle-float {
+  animation: subtleFloat 5.5s ease-in-out infinite;
+}
+
+.animate-subtle-shadow {
+  animation: subtleShadow 5.5s ease-in-out infinite;
+}

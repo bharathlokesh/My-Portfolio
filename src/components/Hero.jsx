@@ -79,7 +79,7 @@ export default function Hero() {
 
           </div>
 
-          {/* Right Column: Interactive AI Companion Showcase */}
+          {/* Right Column: Interactive 3D Developer Avatar Showcase */}
           <div className="lg:col-span-6 xl:col-span-6 flex justify-center items-center relative">
             <HeroVisual />
           </div>
