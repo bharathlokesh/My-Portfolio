@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import devImg from '../assets/developer_3d_transparent.png';
 
-const GREETING_TEXT = "Hello! I am Bharath Lokesh. Welcome to my portfolio! Check out my work in Machine Learning, Computer Vision, and connected IoT systems. Dive in and Explore!";
+const GREETING_TEXT = "Hello! I am Bharath. Welcome to my portfolio! Check out my work in Machine Learning, Computer Vision, and connected IoT systems. Dive in and Explore!";
 
 export default function HeroVisual() {
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -272,8 +272,8 @@ export default function HeroVisual() {
           }}
           type="button"
           className={`absolute top-2 right-2 sm:right-4 z-30 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-md border ${isSpeaking
-              ? 'bg-emerald-500 text-white border-emerald-400 animate-pulse shadow-emerald-500/30 ring-2 ring-emerald-400/40 scale-105'
-              : 'bg-white/85 hover:bg-gold-100 text-stone-900 border-gold-400/40 backdrop-blur-md hover:scale-105 active:scale-95 shadow-gold-500/10'
+            ? 'bg-emerald-500 text-white border-emerald-400 animate-pulse shadow-emerald-500/30 ring-2 ring-emerald-400/40 scale-105'
+            : 'bg-white/85 hover:bg-gold-100 text-stone-900 border-gold-400/40 backdrop-blur-md hover:scale-105 active:scale-95 shadow-gold-500/10'
             }`}
           title={isSpeaking ? "Mute Voice Greeting" : "Play Voice Greeting"}
           aria-label={isSpeaking ? "Mute Voice Greeting" : "Play Voice Greeting"}
@@ -296,8 +296,8 @@ export default function HeroVisual() {
               touchAction: 'none'
             }}
             className={`w-[94%] sm:w-[330px] lg:w-[320px] xl:w-[340px] lg:absolute lg:top-4 lg:-left-20 xl:-left-28 z-50 px-5 pt-3.5 pb-4 rounded-[36px] sm:rounded-[42px] bg-white border-[2.5px] border-stone-900 shadow-2xl shadow-stone-900/15 transition-shadow duration-200 select-none my-2 lg:my-0 ${isDragging
-                ? 'cursor-grabbing shadow-2xl scale-[1.02] ring-2 ring-gold-400/50'
-                : 'cursor-grab hover:shadow-2xl'
+              ? 'cursor-grabbing shadow-2xl scale-[1.02] ring-2 ring-gold-400/50'
+              : 'cursor-grab hover:shadow-2xl'
               }`}
           >
             {/* Classic Comic Curved Speech Tail at Bottom-Left matching reference image */}

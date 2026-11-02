@@ -198,7 +198,7 @@ export default function Contact() {
                   </a>
 
                   <a
-                    href="https://www.instagram.com/bhrrtth/"
+                    href="https://www.instagram.com/bharatth.07/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"
