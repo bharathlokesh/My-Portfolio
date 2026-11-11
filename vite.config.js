@@ -3,7 +3,7 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/My-Portfolio/',
+  base: process.env.GITHUB_ACTIONS ? '/My-Portfolio/' : '/',
   plugins: [react()],
   server: {
     host: true,
