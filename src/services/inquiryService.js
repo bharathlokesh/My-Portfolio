@@ -6,38 +6,53 @@
 
 const DB_CONFIG_KEY = 'bharath_portfolio_db_config_v1';
 
+// Default Supabase project endpoints (fallback if .env is missing or dev server was not restarted)
+const DEFAULT_SUPABASE_URL = 'https://lhpzqobwsryzshtndsau.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_Og7iUS3U90c9HnLiBncfNw_1SEUPIXZ';
+
 // Default configuration from environment (.env) or localStorage
 export function getDbConfig() {
+  const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : {};
+  const envUrl = (env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL).trim();
+  const envKey = (env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_KEY).trim();
+
   const envConfig = {
-    provider: import.meta.env.VITE_DB_PROVIDER || 'supabase', // 'supabase' | 'firebase' | 'local'
-    supabaseUrl: (import.meta.env.VITE_SUPABASE_URL || '').trim(),
-    supabaseKey: (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim(),
-    firebaseUrl: (import.meta.env.VITE_FIREBASE_DB_URL || '').trim(),
+    provider: env.VITE_DB_PROVIDER || 'supabase', // 'supabase' | 'firebase' | 'local'
+    supabaseUrl: envUrl,
+    supabaseKey: envKey,
+    firebaseUrl: (env.VITE_FIREBASE_DB_URL || '').trim(),
     emailNotify: true,
-    recipientEmail: (import.meta.env.VITE_ALERT_EMAIL || 'bharathlokesh07@gmail.com').trim()
+    recipientEmail: (env.VITE_ALERT_EMAIL || 'bharathlokesh07@gmail.com').trim()
   };
 
-  try {
-    const saved = localStorage.getItem(DB_CONFIG_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return {
-        provider: parsed.provider || envConfig.provider,
-        supabaseUrl: parsed.supabaseUrl || envConfig.supabaseUrl,
-        supabaseKey: parsed.supabaseKey || envConfig.supabaseKey,
-        firebaseUrl: parsed.firebaseUrl || envConfig.firebaseUrl,
-        emailNotify: parsed.emailNotify !== undefined ? parsed.emailNotify : envConfig.emailNotify,
-        recipientEmail: parsed.recipientEmail || envConfig.recipientEmail
-      };
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const saved = localStorage.getItem(DB_CONFIG_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Discard stale placeholders or empty values from previous local storage saves
+        const validSavedUrl = parsed.supabaseUrl && !parsed.supabaseUrl.includes('your-project-ref') ? parsed.supabaseUrl.trim() : '';
+        const validSavedKey = parsed.supabaseKey && !parsed.supabaseKey.includes('your-anon') ? parsed.supabaseKey.trim() : '';
+
+        return {
+          provider: parsed.provider && parsed.provider !== 'local' ? parsed.provider : envConfig.provider,
+          supabaseUrl: validSavedUrl || envConfig.supabaseUrl,
+          supabaseKey: validSavedKey || envConfig.supabaseKey,
+          firebaseUrl: parsed.firebaseUrl || envConfig.firebaseUrl,
+          emailNotify: parsed.emailNotify !== undefined ? parsed.emailNotify : envConfig.emailNotify,
+          recipientEmail: parsed.recipientEmail || envConfig.recipientEmail
+        };
+      }
+    } catch (e) {
+      console.warn('Failed to read db config from storage', e);
     }
-  } catch (e) {
-    console.warn('Failed to read db config from storage', e);
   }
 
   return envConfig;
 }
 
 export function saveDbConfig(config) {
+  if (typeof localStorage === 'undefined') return false;
   try {
     localStorage.setItem(DB_CONFIG_KEY, JSON.stringify(config));
     return true;
@@ -52,7 +67,7 @@ export function isSupabaseReady(config = getDbConfig()) {
   const url = config.supabaseUrl.trim();
   const key = config.supabaseKey.trim();
   if (url.includes('your-project-ref') || key.includes('your-anon')) return false;
-  return (url.startsWith('https://') || url.startsWith('http://')) && key.length > 20;
+  return (url.startsWith('https://') || url.startsWith('http://')) && key.length > 15;
 }
 
 export function isFirebaseReady(config = getDbConfig()) {
@@ -196,9 +211,10 @@ export async function fetchInquiries() {
 
       if (res.ok) {
         const data = await res.json();
+        const items = Array.isArray(data) ? data : (data && typeof data === 'object' ? [data] : []);
         return {
           source: 'supabase',
-          inquiries: data.map(item => ({
+          inquiries: items.map(item => ({
             id: item.id,
             name: item.name,
             email: item.email,
