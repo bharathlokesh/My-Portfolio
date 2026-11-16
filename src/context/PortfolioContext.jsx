@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { projects as defaultProjects } from '../data/projects';
-import { fetchInquiries, deleteInquiryCloud, markInquiryReadCloud } from '../services/inquiryService';
+import { fetchInquiries, deleteInquiryCloud, markInquiryReadCloud, subscribeToInquiries } from '../services/inquiryService';
 
 const PortfolioContext = createContext(null);
 
@@ -208,6 +208,8 @@ export function PortfolioProvider({ children }) {
 
   useEffect(() => {
     let mounted = true;
+
+    // 1. Initial Load from Supabase
     const initFetch = async () => {
       try {
         const res = await fetchInquiries();
@@ -230,19 +232,51 @@ export function PortfolioProvider({ children }) {
 
     initFetch();
 
-    // Auto-poll Supabase every 15 seconds so new visitor messages appear automatically in real-time!
-    const pollInterval = setInterval(() => {
-      if (mounted) {
+    // 2. Realtime WebSocket Listener (instant sync across any device)
+    const unsubscribe = subscribeToInquiries((payload) => {
+      if (!mounted) return;
+      if (payload?.eventType === 'INSERT' && payload.new) {
+        const newItem = {
+          id: payload.new.id,
+          name: payload.new.name,
+          email: payload.new.email,
+          subject: payload.new.subject || 'Portfolio Inquiry',
+          message: payload.new.message,
+          date: payload.new.created_at,
+          read: Boolean(payload.new.read)
+        };
+        setInquiries(prev => {
+          if (prev.some(i => i.id === newItem.id)) return prev;
+          return [newItem, ...prev];
+        });
+      } else {
+        // Refresh full list for UPDATE / DELETE
         fetchInquiries().then(res => {
           if (mounted && res && Array.isArray(res.inquiries)) {
             setInquiries(res.inquiries);
           }
         }).catch(() => {});
       }
-    }, 15000);
+    });
+
+    // 3. Fast 5-second polling backup (guarantees cross-device arrival even if network blocks WebSockets)
+    const pollInterval = setInterval(() => {
+      if (mounted) {
+        fetchInquiries().then(res => {
+          if (mounted && res && Array.isArray(res.inquiries)) {
+            setInquiries(res.inquiries);
+            setCloudSyncStatus(prev => ({
+              ...prev,
+              lastChecked: new Date().toISOString()
+            }));
+          }
+        }).catch(() => {});
+      }
+    }, 5000);
 
     return () => {
       mounted = false;
+      if (typeof unsubscribe === 'function') unsubscribe();
       clearInterval(pollInterval);
     };
   }, []);

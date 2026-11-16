@@ -3,9 +3,12 @@
  * 
  * Directly connected in backend / service layer:
  * - Persists all contact inquiries to Supabase database (`inquiries` table).
+ * - Realtime WebSocket subscription for instant cross-device notifications.
  * - Delivers immediate email notifications to bharathlokesh07@gmail.com.
- * - Automatically caches inquiries in localStorage for offline viewing.
+ * - Automatically caches inquiries in localStorage for offline resilience.
  */
+
+import { createClient } from '@supabase/supabase-js';
 
 // Supabase Backend Credentials (from .env or production environment)
 export const SUPABASE_URL = (
@@ -24,6 +27,11 @@ export const ALERT_EMAIL = (
 ).trim();
 
 const LOCAL_INQUIRIES_KEY = 'bharath_portfolio_inquiries_v1';
+
+// Initialize Supabase Client
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: false }
+});
 
 export function isSupabaseReady() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -56,27 +64,19 @@ export async function sendInquiry(inquiryData) {
   let savedToCloud = false;
   let cloudError = null;
 
-  // 1. Direct Supabase Insert
+  // 1. Direct Supabase Insert using Client Library
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/inquiries`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(inquiryRecord)
-    });
+    const { data, error } = await supabase
+      .from('inquiries')
+      .insert([inquiryRecord])
+      .select();
 
-    if (res.ok) {
-      const data = await res.json();
+    if (!error && data && data.length > 0) {
       savedToCloud = true;
-      inquiryRecord.id = data[0]?.id || `supa-${Date.now()}`;
-    } else {
-      const errText = await res.text();
-      console.warn('Supabase insert failed:', errText);
-      cloudError = `Supabase HTTP ${res.status}: ${errText}`;
+      inquiryRecord.id = data[0].id;
+    } else if (error) {
+      console.warn('Supabase insert error:', error);
+      cloudError = error.message;
     }
   } catch (err) {
     console.warn('Supabase network error:', err);
@@ -133,18 +133,13 @@ export async function sendInquiry(inquiryData) {
  */
 export async function fetchInquiries() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/inquiries?select=*&order=created_at.desc`, {
-      method: 'GET',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-      }
-    });
+    const { data, error } = await supabase
+      .from('inquiries')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (res.ok) {
-      const data = await res.json();
-      const items = Array.isArray(data) ? data : (data && typeof data === 'object' ? [data] : []);
-      const mapped = items.map(item => ({
+    if (!error && Array.isArray(data)) {
+      const mapped = data.map(item => ({
         id: item.id,
         name: item.name,
         email: item.email,
@@ -165,9 +160,8 @@ export async function fetchInquiries() {
         source: 'supabase',
         inquiries: mapped
       };
-    } else {
-      const errText = await res.text();
-      console.warn('Supabase fetch failed HTTP', res.status, errText);
+    } else if (error) {
+      console.warn('Supabase fetch error:', error);
     }
   } catch (err) {
     console.warn('Failed to fetch from Supabase:', err);
@@ -189,21 +183,39 @@ export async function fetchInquiries() {
 }
 
 /**
+ * Realtime WebSocket Subscription
+ * Fires instantly when an inquiry is inserted on any device anywhere in the world!
+ */
+export function subscribeToInquiries(callback) {
+  try {
+    const channel = supabase
+      .channel('realtime:inquiries')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'inquiries' },
+        (payload) => {
+          callback(payload);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  } catch (e) {
+    console.warn('Failed to subscribe to realtime inquiries:', e);
+    return () => {};
+  }
+}
+
+/**
  * Mark inquiry as read on Supabase
  */
 export async function markInquiryReadCloud(id, readStatus = true) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/inquiries?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({ read: readStatus })
-    });
+    await supabase.from('inquiries').update({ read: readStatus }).eq('id', id);
   } catch (err) {
-    console.warn('Failed to update read status on Supabase', err);
+    console.warn('Failed to update read status on Supabase:', err);
   }
 }
 
@@ -212,14 +224,8 @@ export async function markInquiryReadCloud(id, readStatus = true) {
  */
 export async function deleteInquiryCloud(id) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/inquiries?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-      }
-    });
+    await supabase.from('inquiries').delete().eq('id', id);
   } catch (err) {
-    console.warn('Failed to delete inquiry on Supabase', err);
+    console.warn('Failed to delete inquiry on Supabase:', err);
   }
 }
