@@ -10,11 +10,19 @@ const DB_CONFIG_KEY = 'bharath_portfolio_db_config_v1';
 const DEFAULT_SUPABASE_URL = 'https://lhpzqobwsryzshtndsau.supabase.co';
 const DEFAULT_SUPABASE_KEY = 'sb_publishable_Og7iUS3U90c9HnLiBncfNw_1SEUPIXZ';
 
+function isPlaceholder(val) {
+  if (!val || typeof val !== 'string') return true;
+  const s = val.trim();
+  return !s || s.includes('your-project-ref') || s.includes('your-anon') || s.includes('your-actual');
+}
+
 // Default configuration from environment (.env) or localStorage
 export function getDbConfig() {
   const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : {};
-  const envUrl = (env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL).trim();
-  const envKey = (env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_KEY).trim();
+
+  // Reject placeholder values baked in from earlier server starts
+  const envUrl = (!isPlaceholder(env.VITE_SUPABASE_URL) ? env.VITE_SUPABASE_URL : DEFAULT_SUPABASE_URL).trim();
+  const envKey = (!isPlaceholder(env.VITE_SUPABASE_ANON_KEY) ? env.VITE_SUPABASE_ANON_KEY : DEFAULT_SUPABASE_KEY).trim();
 
   const envConfig = {
     provider: env.VITE_DB_PROVIDER || 'supabase', // 'supabase' | 'firebase' | 'local'
@@ -31,10 +39,10 @@ export function getDbConfig() {
       if (saved) {
         const parsed = JSON.parse(saved);
         // Discard stale placeholders or empty values from previous local storage saves
-        const validSavedUrl = parsed.supabaseUrl && !parsed.supabaseUrl.includes('your-project-ref') ? parsed.supabaseUrl.trim() : '';
-        const validSavedKey = parsed.supabaseKey && !parsed.supabaseKey.includes('your-anon') ? parsed.supabaseKey.trim() : '';
+        const validSavedUrl = !isPlaceholder(parsed.supabaseUrl) ? parsed.supabaseUrl.trim() : '';
+        const validSavedKey = !isPlaceholder(parsed.supabaseKey) ? parsed.supabaseKey.trim() : '';
 
-        return {
+        const merged = {
           provider: parsed.provider && parsed.provider !== 'local' ? parsed.provider : envConfig.provider,
           supabaseUrl: validSavedUrl || envConfig.supabaseUrl,
           supabaseKey: validSavedKey || envConfig.supabaseKey,
@@ -42,6 +50,15 @@ export function getDbConfig() {
           emailNotify: parsed.emailNotify !== undefined ? parsed.emailNotify : envConfig.emailNotify,
           recipientEmail: parsed.recipientEmail || envConfig.recipientEmail
         };
+
+        // Self-heal: Overwrite old stale localStorage cache with active Supabase credentials
+        if (!validSavedUrl || !validSavedKey || parsed.provider === 'local') {
+          try {
+            localStorage.setItem(DB_CONFIG_KEY, JSON.stringify(merged));
+          } catch {}
+        }
+
+        return merged;
       }
     } catch (e) {
       console.warn('Failed to read db config from storage', e);
@@ -64,10 +81,8 @@ export function saveDbConfig(config) {
 
 export function isSupabaseReady(config = getDbConfig()) {
   if (!config?.supabaseUrl || !config?.supabaseKey) return false;
-  const url = config.supabaseUrl.trim();
-  const key = config.supabaseKey.trim();
-  if (url.includes('your-project-ref') || key.includes('your-anon')) return false;
-  return (url.startsWith('https://') || url.startsWith('http://')) && key.length > 15;
+  if (isPlaceholder(config.supabaseUrl) || isPlaceholder(config.supabaseKey)) return false;
+  return (config.supabaseUrl.startsWith('https://') || config.supabaseUrl.startsWith('http://')) && config.supabaseKey.length > 15;
 }
 
 export function isFirebaseReady(config = getDbConfig()) {
@@ -224,6 +239,9 @@ export async function fetchInquiries() {
             read: Boolean(item.read)
           }))
         };
+      } else {
+        const errText = await res.text();
+        console.warn('Supabase fetch failed HTTP', res.status, errText);
       }
     } catch (err) {
       console.warn('Failed to fetch from Supabase:', err);

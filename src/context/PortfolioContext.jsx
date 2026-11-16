@@ -214,22 +214,27 @@ export function PortfolioProvider({ children }) {
 
   useEffect(() => {
     let mounted = true;
-    fetchInquiries().then(res => {
-      if (!mounted) return;
-      if (res && res.source !== 'local' && Array.isArray(res.inquiries)) {
-        setInquiries(res.inquiries);
-        setCloudSyncStatus({
-          source: res.source,
-          lastChecked: new Date().toISOString(),
-          isSyncing: false,
-          error: null
-        });
+    const initFetch = async () => {
+      try {
+        const res = await fetchInquiries();
+        if (!mounted) return;
+        if (res && res.source !== 'local' && Array.isArray(res.inquiries)) {
+          setInquiries(res.inquiries);
+          setCloudSyncStatus({
+            source: res.source,
+            lastChecked: new Date().toISOString(),
+            isSyncing: false,
+            error: null
+          });
+        }
+      } catch (err) {
+        if (mounted) {
+          console.warn('Initial inquiry sync failed:', err);
+        }
       }
-    }).catch(err => {
-      if (mounted) {
-        setCloudSyncStatus(prev => ({ ...prev, isSyncing: false, error: err.message }));
-      }
-    });
+    };
+
+    initFetch();
 
     return () => {
       mounted = false;
