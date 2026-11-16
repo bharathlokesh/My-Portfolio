@@ -33,7 +33,7 @@ import {
   Phone,
   MapPin
 } from 'lucide-react';
-import { getDbConfig, saveDbConfig, testDbConnection } from '../services/inquiryService';
+import { getDbConfig, saveDbConfig, testDbConnection, isSupabaseReady, isFirebaseReady } from '../services/inquiryService';
 
 export default function AdminDashboard() {
   const {
@@ -2056,16 +2056,22 @@ create policy "Allow public delete" on inquiries for delete to public using (tru
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold border ${
-                        dbConfigForm.supabaseUrl || dbConfigForm.firebaseUrl
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                          : 'bg-amber-50 text-amber-800 border-amber-200'
-                      }`}>
-                        <span className={`w-2 h-2 rounded-full ${
-                          dbConfigForm.supabaseUrl || dbConfigForm.firebaseUrl ? 'bg-emerald-500' : 'bg-amber-500'
-                        }`} />
-                        <span>{dbConfigForm.supabaseUrl || dbConfigForm.firebaseUrl ? 'Cloud Configured' : 'Local Storage Only'}</span>
-                      </span>
+                      {(() => {
+                        const isCloudReady = (dbConfigForm.provider === 'supabase' && isSupabaseReady(dbConfigForm)) ||
+                                             (dbConfigForm.provider === 'firebase' && isFirebaseReady(dbConfigForm));
+                        return (
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold border ${
+                            isCloudReady
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : 'bg-amber-50 text-amber-800 border-amber-200'
+                          }`}>
+                            <span className={`w-2 h-2 rounded-full ${
+                              isCloudReady ? 'bg-emerald-500' : 'bg-amber-500'
+                            }`} />
+                            <span>{isCloudReady ? 'Cloud Configured' : 'Needs Setup / Local Only'}</span>
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
 

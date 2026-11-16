@@ -47,6 +47,21 @@ export function saveDbConfig(config) {
   }
 }
 
+export function isSupabaseReady(config = getDbConfig()) {
+  if (!config?.supabaseUrl || !config?.supabaseKey) return false;
+  const url = config.supabaseUrl.trim();
+  const key = config.supabaseKey.trim();
+  if (url.includes('your-project-ref') || key.includes('your-anon')) return false;
+  return (url.startsWith('https://') || url.startsWith('http://')) && key.length > 20;
+}
+
+export function isFirebaseReady(config = getDbConfig()) {
+  if (!config?.firebaseUrl) return false;
+  const url = config.firebaseUrl.trim();
+  if (url.includes('your-project-default-rtdb')) return false;
+  return url.startsWith('https://') || url.startsWith('http://');
+}
+
 /**
  * Send an inquiry:
  * 1. Attempts to persist to Cloud Database (Supabase or Firebase).
@@ -68,8 +83,8 @@ export async function sendInquiry(inquiryData) {
   let savedToCloud = false;
   let cloudError = null;
 
-  // 1. Try Supabase if configured
-  if (config.supabaseUrl && config.supabaseKey) {
+  // 1. Try Supabase if configured with real credentials
+  if (isSupabaseReady(config)) {
     try {
       const cleanUrl = config.supabaseUrl.replace(/\/+$/, '');
       const res = await fetch(`${cleanUrl}/rest/v1/inquiries`, {
@@ -99,7 +114,7 @@ export async function sendInquiry(inquiryData) {
   }
 
   // 2. Try Firebase Realtime Database if configured and not yet saved
-  if (!savedToCloud && config.firebaseUrl) {
+  if (!savedToCloud && isFirebaseReady(config)) {
     try {
       const cleanUrl = config.firebaseUrl.replace(/\/+$/, '');
       const res = await fetch(`${cleanUrl}/inquiries.json`, {
@@ -168,7 +183,7 @@ export async function fetchInquiries() {
   const config = getDbConfig();
 
   // 1. Try Supabase
-  if (config.supabaseUrl && config.supabaseKey) {
+  if (isSupabaseReady(config)) {
     try {
       const cleanUrl = config.supabaseUrl.replace(/\/+$/, '');
       const res = await fetch(`${cleanUrl}/rest/v1/inquiries?select=*&order=created_at.desc`, {
@@ -200,7 +215,7 @@ export async function fetchInquiries() {
   }
 
   // 2. Try Firebase
-  if (config.firebaseUrl) {
+  if (isFirebaseReady(config)) {
     try {
       const cleanUrl = config.firebaseUrl.replace(/\/+$/, '');
       const res = await fetch(`${cleanUrl}/inquiries.json`, {
@@ -245,7 +260,7 @@ export async function fetchInquiries() {
 export async function markInquiryReadCloud(id, readStatus = true) {
   const config = getDbConfig();
 
-  if (config.supabaseUrl && config.supabaseKey) {
+  if (isSupabaseReady(config)) {
     try {
       const cleanUrl = config.supabaseUrl.replace(/\/+$/, '');
       await fetch(`${cleanUrl}/rest/v1/inquiries?id=eq.${id}`, {
@@ -260,7 +275,7 @@ export async function markInquiryReadCloud(id, readStatus = true) {
     } catch (err) {
       console.warn('Failed to update read status on Supabase', err);
     }
-  } else if (config.firebaseUrl) {
+  } else if (isFirebaseReady(config)) {
     try {
       const cleanUrl = config.firebaseUrl.replace(/\/+$/, '');
       await fetch(`${cleanUrl}/inquiries/${id}.json`, {
@@ -280,7 +295,7 @@ export async function markInquiryReadCloud(id, readStatus = true) {
 export async function deleteInquiryCloud(id) {
   const config = getDbConfig();
 
-  if (config.supabaseUrl && config.supabaseKey) {
+  if (isSupabaseReady(config)) {
     try {
       const cleanUrl = config.supabaseUrl.replace(/\/+$/, '');
       await fetch(`${cleanUrl}/rest/v1/inquiries?id=eq.${id}`, {
@@ -293,7 +308,7 @@ export async function deleteInquiryCloud(id) {
     } catch (err) {
       console.warn('Failed to delete inquiry on Supabase', err);
     }
-  } else if (config.firebaseUrl) {
+  } else if (isFirebaseReady(config)) {
     try {
       const cleanUrl = config.firebaseUrl.replace(/\/+$/, '');
       await fetch(`${cleanUrl}/inquiries/${id}.json`, {
