@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { sendInquiry } from '../services/inquiryService';
 import {
   Mail,
   Send,
@@ -43,26 +44,39 @@ export default function Contact() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
 
     setStatus('submitting');
-    if (addInquiry) {
-      addInquiry({
+    try {
+      const res = await sendInquiry({
         name: formData.name,
         email: formData.email,
         subject: formData.subject || 'Portfolio Inquiry',
         message: formData.message
       });
-    }
 
-    // Simulate responsive transmission
-    setTimeout(() => {
+      if (addInquiry && res?.inquiry) {
+        addInquiry(res.inquiry);
+      }
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setStatus('idle'), 6000);
-    }, 800);
+    } catch (err) {
+      console.warn('Inquiry submission fallback:', err);
+      if (addInquiry) {
+        addInquiry({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject || 'Portfolio Inquiry',
+          message: formData.message
+        });
+      }
+      setStatus('success');
+      setFormData({ name: '', email: '', message: '' });
+      setTimeout(() => setStatus('idle'), 6000);
+    }
   };
 
   const handleCopyEmail = () => {

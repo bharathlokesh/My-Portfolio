@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { projects as defaultProjects } from '../data/projects';
+import { fetchInquiries, deleteInquiryCloud, markInquiryReadCloud } from '../services/inquiryService';
 
 const PortfolioContext = createContext(null);
 
@@ -172,6 +173,69 @@ export function PortfolioProvider({ children }) {
     }
   });
 
+  const [cloudSyncStatus, setCloudSyncStatus] = useState({
+    source: 'local',
+    lastChecked: null,
+    isSyncing: false,
+    error: null
+  });
+
+  // Fetch inquiries from Cloud Database on mount
+  const refreshInquiriesFromCloud = async () => {
+    setCloudSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
+    try {
+      const res = await fetchInquiries();
+      if (res.source !== 'local' && Array.isArray(res.inquiries)) {
+        setInquiries(res.inquiries);
+        setCloudSyncStatus({
+          source: res.source,
+          lastChecked: new Date().toISOString(),
+          isSyncing: false,
+          error: null
+        });
+        return { success: true, count: res.inquiries.length, source: res.source };
+      }
+      setCloudSyncStatus({
+        source: 'local',
+        lastChecked: new Date().toISOString(),
+        isSyncing: false,
+        error: null
+      });
+      return { success: true, source: 'local' };
+    } catch (err) {
+      setCloudSyncStatus(prev => ({
+        ...prev,
+        isSyncing: false,
+        error: err.message
+      }));
+      return { success: false, error: err.message };
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    fetchInquiries().then(res => {
+      if (!mounted) return;
+      if (res && res.source !== 'local' && Array.isArray(res.inquiries)) {
+        setInquiries(res.inquiries);
+        setCloudSyncStatus({
+          source: res.source,
+          lastChecked: new Date().toISOString(),
+          isSyncing: false,
+          error: null
+        });
+      }
+    }).catch(err => {
+      if (mounted) {
+        setCloudSyncStatus(prev => ({ ...prev, isSyncing: false, error: err.message }));
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // Sync to localStorage whenever state changes
   useEffect(() => {
     try {
@@ -304,10 +368,12 @@ export function PortfolioProvider({ children }) {
   };
 
   const deleteInquiry = (id) => {
+    deleteInquiryCloud(id);
     setInquiries(prev => prev.filter(i => i.id !== id));
   };
 
   const markInquiryRead = (id) => {
+    markInquiryReadCloud(id, true);
     setInquiries(prev => prev.map(i => i.id === id ? { ...i, read: true } : i));
   };
 
@@ -376,6 +442,8 @@ export function PortfolioProvider({ children }) {
         addInquiry,
         deleteInquiry,
         markInquiryRead,
+        refreshInquiriesFromCloud,
+        cloudSyncStatus,
         resetToDefaults,
         exportData,
         importData

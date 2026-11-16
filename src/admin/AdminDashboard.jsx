@@ -27,8 +27,13 @@ import {
   Download,
   Upload,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  RefreshCw,
+  Copy,
+  Phone,
+  MapPin
 } from 'lucide-react';
+import { getDbConfig, saveDbConfig, testDbConnection } from '../services/inquiryService';
 
 export default function AdminDashboard() {
   const {
@@ -49,6 +54,8 @@ export default function AdminDashboard() {
     deleteEducation,
     deleteInquiry,
     markInquiryRead,
+    refreshInquiriesFromCloud,
+    cloudSyncStatus = { source: 'local' },
     resetToDefaults,
     exportData,
     importData
@@ -88,6 +95,61 @@ export default function AdminDashboard() {
 
   // Inline New Skill State
   const [newSkillForm, setNewSkillForm] = useState({});
+
+  // Database Configuration State
+  const [dbConfigForm, setDbConfigForm] = useState(getDbConfig());
+  const [dbTestResult, setDbTestResult] = useState({ testing: false, success: null, message: '' });
+  const [copiedSql, setCopiedSql] = useState(false);
+  const [isRefreshingInquiries, setIsRefreshingInquiries] = useState(false);
+
+  const handleTestDbConnection = async () => {
+    setDbTestResult({ testing: true, success: null, message: 'Testing connection...' });
+    const res = await testDbConnection(dbConfigForm);
+    setDbTestResult({ testing: false, success: res.success, message: res.success ? res.message : res.error });
+  };
+
+  const handleSaveDbConfig = (e) => {
+    e.preventDefault();
+    saveDbConfig(dbConfigForm);
+    showToast('Database configuration saved!');
+    if (refreshInquiriesFromCloud) {
+      refreshInquiriesFromCloud();
+    }
+  };
+
+  const handleSyncInquiries = async () => {
+    if (!refreshInquiriesFromCloud) return;
+    setIsRefreshingInquiries(true);
+    const res = await refreshInquiriesFromCloud();
+    setIsRefreshingInquiries(false);
+    if (res.success) {
+      showToast(res.source !== 'local' ? `Synced ${res.count || 0} inquiries from ${res.source}!` : 'Synced with local cache.');
+    } else {
+      showToast('Sync error: ' + (res.error || 'Failed to fetch'));
+    }
+  };
+
+  const handleCopySql = () => {
+    const sql = `-- Run this in your Supabase SQL Editor:
+create table if not exists inquiries (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  name text not null,
+  email text not null,
+  subject text default 'Portfolio Inquiry',
+  message text not null,
+  read boolean default false
+);
+
+alter table inquiries enable row level security;
+create policy "Allow public insert" on inquiries for insert to public with check (true);
+create policy "Allow public select" on inquiries for select to public using (true);
+create policy "Allow public update" on inquiries for update to public using (true);
+create policy "Allow public delete" on inquiries for delete to public using (true);`;
+    navigator.clipboard.writeText(sql);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 2500);
+  };
 
   // Show Toast Helper
   const showToast = (msg) => {
@@ -463,6 +525,7 @@ export default function AdminDashboard() {
     { id: 'skills', label: `Skills Matrix (${totalSkillsCount})`, icon: Layers },
     { id: 'projects', label: `Projects (${projects.length})`, icon: FolderGit2 },
     { id: 'education', label: `Education (${education.length})`, icon: GraduationCap },
+    { id: 'contact', label: 'Contact Details', icon: Phone },
     { id: 'inquiries', label: `Inquiries${unreadInquiriesCount > 0 ? ` (${unreadInquiriesCount})` : ''}`, icon: Mail },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
@@ -726,6 +789,18 @@ export default function AdminDashboard() {
                           <span>+ Add Education Record</span>
                         </div>
                         <p className="text-[11px] text-stone-500 mt-1">Add degree, diploma, or schooling</p>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveTab('contact')}
+                        type="button"
+                        className="p-3.5 rounded-xl border border-gold-400/30 hover:border-gold-500 hover:bg-gold-50/70 text-left transition-all cursor-pointer group bg-warmwhite-50"
+                      >
+                        <div className="font-bold text-xs text-stone-900 group-hover:text-gold-800 flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-gold-600" />
+                          <span>Edit Contact Details</span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">Phone, email, location & socials</p>
                       </button>
 
                       <button
@@ -1371,74 +1446,352 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {/* TAB: CONTACT DETAILS */}
+            {activeTab === 'contact' && (
+              <form onSubmit={handleSaveProfile} className="space-y-6 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-2">
+                      <Phone className="w-3.5 h-3.5 text-gold-600" />
+                      <span>Live Portfolio Channels Active</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-display font-extrabold text-stone-900 tracking-tight">
+                      Edit Contact Details & Channels
+                    </h2>
+                    <p className="text-xs text-stone-600 font-mono mt-1">
+                      Manage phone, email, location, work availability pitch, and social links shown on your live portfolio.
+                    </p>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn-gold px-6 py-2.5 rounded-xl text-stone-950 font-bold text-xs sm:text-sm font-mono uppercase tracking-wider shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+
+                {/* Direct Contact Channels Card */}
+                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
+                  <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-gold-700" />
+                    <span>Direct Channels</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        Primary Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={profileForm.email || ''}
+                        onChange={(e) => setProfileForm(p => ({ ...p, email: e.target.value }))}
+                        placeholder="e.g. bharathlokesh07@gmail.com"
+                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      />
+                      <p className="text-[10px] text-stone-500 font-mono mt-1">
+                        Displays on the contact card & enables 1-click email transmission.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        Phone Number *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={profileForm.phone || ''}
+                        onChange={(e) => setProfileForm(p => ({ ...p, phone: e.target.value }))}
+                        placeholder="e.g. +91 9611673039"
+                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      />
+                      <p className="text-[10px] text-stone-500 font-mono mt-1">
+                        Includes 1-click call and quick copy on the public site.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        Location / City
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.location || ''}
+                        onChange={(e) => setProfileForm(p => ({ ...p, location: e.target.value }))}
+                        placeholder="e.g. Tumkur, Karnataka, India"
+                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      />
+                      <p className="text-[10px] text-stone-500 font-mono mt-1">
+                        Displays with map pin on your contact section.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Profiles & Developer Links Card */}
+                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
+                  <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
+                    <Database className="w-4 h-4 text-gold-700" />
+                    <span>Social & Professional Profiles</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        GitHub Profile URL
+                      </label>
+                      <input
+                        type="url"
+                        value={profileForm.social?.github || ''}
+                        onChange={(e) => setProfileForm(p => ({
+                          ...p,
+                          social: { ...(p.social || {}), github: e.target.value }
+                        }))}
+                        placeholder="https://github.com/..."
+                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        LinkedIn Profile URL
+                      </label>
+                      <input
+                        type="url"
+                        value={profileForm.social?.linkedin || ''}
+                        onChange={(e) => setProfileForm(p => ({
+                          ...p,
+                          social: { ...(p.social || {}), linkedin: e.target.value }
+                        }))}
+                        placeholder="https://linkedin.com/in/..."
+                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        Instagram Profile URL
+                      </label>
+                      <input
+                        type="url"
+                        value={profileForm.social?.instagram || ''}
+                        onChange={(e) => setProfileForm(p => ({
+                          ...p,
+                          social: { ...(p.social || {}), instagram: e.target.value }
+                        }))}
+                        placeholder="https://instagram.com/..."
+                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preview Box */}
+                <div className="p-6 rounded-2xl bg-warmwhite-50 border border-gold-400/30 shadow-xs">
+                  <span className="block text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold mb-3">
+                    Live Public Portfolio Preview
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3.5 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gold-500/10 text-gold-700">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[10px] font-mono text-stone-400 uppercase">EMAIL</span>
+                        <span className="block text-xs font-bold text-stone-900 truncate">{profileForm.email || 'Not set'}</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gold-500/10 text-gold-700">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[10px] font-mono text-stone-400 uppercase">PHONE</span>
+                        <span className="block text-xs font-bold text-stone-900 truncate">{profileForm.phone || 'Not set'}</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gold-500/10 text-gold-700">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[10px] font-mono text-stone-400 uppercase">LOCATION</span>
+                        <span className="block text-xs font-bold text-stone-900 truncate">{profileForm.location || 'Not set'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    className="w-full btn-gold py-3.5 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 active:scale-[0.99] cursor-pointer"
+                  >
+                    Save Contact Details & Update Portfolio
+                  </button>
+                </div>
+              </form>
+            )}
+
             {/* TAB 6: INQUIRIES & CONTACT CHANNELS */}
             {activeTab === 'inquiries' && (
               <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
-                  <h2 className="text-lg font-display font-bold text-stone-900 mb-0.5">
-                    Messages & Contact Inquiries ({inquiries.length})
-                  </h2>
-                  <p className="text-xs text-stone-600 font-mono">
-                    Review messages submitted via the portfolio contact form and configure direct contact channels.
-                  </p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-2">
+                      <Mail className="w-3.5 h-3.5 text-gold-600" />
+                      <span>Inquiries & Messages Inbox</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-display font-extrabold text-stone-900 tracking-tight">
+                      Received Inquiries ({inquiries.length})
+                    </h2>
+                    <p className="text-xs text-stone-600 font-mono mt-1">
+                      Real-time messages submitted by visitors on your live portfolio.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {/* Cloud Database Connection Indicator */}
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-medium shadow-xs bg-warmwhite-50">
+                      <span className={`w-2 h-2 rounded-full ${
+                        cloudSyncStatus.source !== 'local' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                      }`} />
+                      <span className="text-stone-700">
+                        {cloudSyncStatus.source === 'supabase'
+                          ? 'Supabase DB'
+                          : cloudSyncStatus.source === 'firebase'
+                          ? 'Firebase DB'
+                          : 'Local Storage'}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={handleSyncInquiries}
+                      disabled={isRefreshingInquiries}
+                      type="button"
+                      className="px-3.5 py-2 rounded-xl border border-gold-400/40 hover:bg-gold-50 text-xs font-mono text-stone-800 flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98 disabled:opacity-50"
+                      title="Sync inquiries from database"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 text-gold-700 ${isRefreshingInquiries ? 'animate-spin' : ''}`} />
+                      <span>{isRefreshingInquiries ? 'Syncing...' : 'Sync Now'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('settings')}
+                      type="button"
+                      className="btn-gold px-3.5 py-2 rounded-xl text-stone-950 font-bold text-xs font-mono flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
+                    >
+                      <Database className="w-3.5 h-3.5" />
+                      <span>Configure DB</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Inquiries Inbox */}
                 <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
-                  <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gold-700" />
-                    <span>Received Inquiries</span>
-                  </h3>
+                  <div className="flex items-center justify-between pb-3 border-b border-gold-400/20">
+                    <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-gold-700" />
+                      <span>Inbox Messages</span>
+                    </h3>
+                    <span className="text-xs font-mono text-stone-500">
+                      {inquiries.filter(i => !i.read).length} unread
+                    </span>
+                  </div>
 
                   {inquiries.length === 0 ? (
-                    <div className="text-center py-8 border border-gold-400/20 rounded-xl bg-warmwhite-50">
-                      <Mail className="w-8 h-8 text-stone-300 mx-auto mb-2" />
-                      <p className="text-xs font-mono text-stone-500">No inquiries received yet.</p>
+                    <div className="text-center py-12 border border-dashed border-gold-400/30 rounded-2xl bg-warmwhite-50/70 p-6">
+                      <div className="w-12 h-12 rounded-2xl bg-gold-500/10 text-gold-700 flex items-center justify-center mx-auto mb-3 border border-gold-400/30">
+                        <Mail className="w-6 h-6" />
+                      </div>
+                      <h4 className="font-display font-bold text-stone-900 text-sm mb-1">
+                        No inquiries received yet
+                      </h4>
+                      <p className="text-xs font-mono text-stone-500 max-w-sm mx-auto mb-4">
+                        When visitors fill out the "Let's Build Something New" form on your portfolio, their messages appear right here.
+                      </p>
+                      <button
+                        onClick={() => setActiveTab('settings')}
+                        type="button"
+                        className="px-4 py-2 rounded-xl bg-white border border-gold-400/40 hover:bg-gold-50 text-xs font-mono font-bold text-stone-900 shadow-xs cursor-pointer"
+                      >
+                        Link Database (Supabase / Firebase) →
+                      </button>
                     </div>
                   ) : (
                     <div className="space-y-3">
                       {inquiries.map((inq) => (
                         <div
                           key={inq.id}
-                          className={`p-4 rounded-xl border transition-all ${
+                          className={`p-5 rounded-2xl border transition-all ${
                             inq.read
-                              ? 'bg-warmwhite-50 border-gold-400/20'
-                              : 'bg-white border-gold-400/50 shadow-sm'
+                              ? 'bg-warmwhite-50/80 border-gold-400/20'
+                              : 'bg-white border-gold-400/50 shadow-md ring-1 ring-gold-400/20'
                           }`}
                         >
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <div className="flex items-center gap-2">
-                              {!inq.read && (
-                                <span className="w-2 h-2 rounded-full bg-gold-500 shrink-0" />
+                            <div className="flex items-center gap-2.5">
+                              {!inq.read ? (
+                                <span className="w-2.5 h-2.5 rounded-full bg-gold-500 shrink-0 shadow-sm" title="Unread" />
+                              ) : (
+                                <span className="w-2.5 h-2.5 rounded-full bg-stone-300 shrink-0" title="Read" />
                               )}
                               <span className="font-bold text-sm text-stone-900">{inq.name}</span>
-                              <span className="text-xs font-mono text-stone-500">({inq.email})</span>
+                              <a
+                                href={`mailto:${inq.email}`}
+                                className="text-xs font-mono text-gold-800 hover:text-gold-950 underline decoration-gold-400/40"
+                              >
+                                {inq.email}
+                              </a>
                             </div>
-                            <span className="text-[10px] font-mono text-stone-400">
-                              {inq.date ? new Date(inq.date).toLocaleString() : 'Recent'}
+                            <span className="text-[11px] font-mono text-stone-400">
+                              {inq.date ? new Date(inq.date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Recent'}
                             </span>
                           </div>
 
-                          <p className="text-xs text-stone-700 leading-relaxed font-normal mb-3">
-                            {inq.message}
-                          </p>
+                          {inq.subject && (
+                            <div className="mb-2">
+                              <span className="inline-block px-2 py-0.5 rounded-md bg-gold-500/10 border border-gold-400/25 text-[10px] font-mono font-bold text-gold-900 uppercase tracking-wider">
+                                {inq.subject}
+                              </span>
+                            </div>
+                          )}
 
-                          <div className="flex items-center gap-3 pt-2 border-t border-gold-400/15">
+                          <div className="p-3.5 rounded-xl bg-warmwhite-100/60 border border-gold-400/20 text-xs text-stone-800 leading-relaxed font-normal mb-3 whitespace-pre-wrap">
+                            {inq.message}
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-gold-400/15">
+                            <a
+                              href={`mailto:${inq.email}?subject=Re: ${encodeURIComponent(inq.subject || 'Portfolio Inquiry')}&body=Hi ${encodeURIComponent(inq.name)},%0D%0A%0D%0AThank you for reaching out via my portfolio.%0D%0A%0D%0ABest regards,%0D%0ABharath Lokesh`}
+                              className="text-xs font-mono font-bold text-stone-900 hover:text-gold-800 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gold-400/30 hover:border-gold-500 transition-all shadow-xs cursor-pointer"
+                            >
+                              <Mail className="w-3.5 h-3.5 text-gold-600" />
+                              <span>Reply via Email</span>
+                            </a>
+
                             {!inq.read && (
                               <button
                                 onClick={() => markInquiryRead(inq.id)}
                                 type="button"
-                                className="text-xs font-mono text-gold-800 hover:text-gold-950 font-bold cursor-pointer"
+                                className="text-xs font-mono text-gold-800 hover:text-gold-950 font-bold cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-gold-50 transition-colors"
                               >
                                 ✓ Mark as Read
                               </button>
                             )}
+
                             <button
                               onClick={() => deleteInquiry(inq.id)}
                               type="button"
-                              className="text-xs font-mono text-red-600 hover:text-red-700 cursor-pointer"
+                              className="text-xs font-mono text-red-600 hover:text-red-700 cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors ml-auto"
                             >
-                              Delete
+                              <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+                              <span>Delete</span>
                             </button>
                           </div>
                         </div>
@@ -1685,17 +2038,201 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Cloud Database (Supabase) Integration Notes */}
-                <div className="p-6 rounded-2xl bg-gold-50/60 border border-gold-400/30 shadow-sm space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Database className="w-5 h-5 text-gold-700" />
-                    <h3 className="text-base font-display font-bold text-stone-900">
-                      Cloud Database Sync Ready
-                    </h3>
+                {/* Cloud Database (Supabase / Firebase) Setup */}
+                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gold-400/20 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-2xl bg-gold-500/15 text-gold-800 border border-gold-400/30">
+                        <Database className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-display font-bold text-stone-900">
+                          Cloud Database & Inquiries Integration
+                        </h3>
+                        <p className="text-xs text-stone-500 font-mono">
+                          Connect Supabase or Firebase to receive inquiries from any visitor anywhere in the world.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold border ${
+                        dbConfigForm.supabaseUrl || dbConfigForm.firebaseUrl
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
+                      }`}>
+                        <span className={`w-2 h-2 rounded-full ${
+                          dbConfigForm.supabaseUrl || dbConfigForm.firebaseUrl ? 'bg-emerald-500' : 'bg-amber-500'
+                        }`} />
+                        <span>{dbConfigForm.supabaseUrl || dbConfigForm.firebaseUrl ? 'Cloud Configured' : 'Local Storage Only'}</span>
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-xs text-stone-700 leading-relaxed">
-                    Currently, your changes are instantly saved to your browser's persistent storage. If you want multi-device cloud synchronization via Supabase later, simply create a free Supabase project and add <code className="text-gold-900 bg-white px-1.5 py-0.5 rounded border border-gold-400/30 font-bold">VITE_SUPABASE_URL</code> and <code className="text-gold-900 bg-white px-1.5 py-0.5 rounded border border-gold-400/30 font-bold">VITE_SUPABASE_ANON_KEY</code> to your environment variables.
-                  </p>
+
+                  <form onSubmit={handleSaveDbConfig} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
+                        Database Provider
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                          dbConfigForm.provider === 'supabase'
+                            ? 'bg-gold-50/80 border-gold-500 shadow-xs ring-1 ring-gold-400/30'
+                            : 'bg-warmwhite-50 border-gold-400/20 hover:bg-gold-50/40'
+                        }`}>
+                          <input
+                            type="radio"
+                            name="dbProvider"
+                            checked={dbConfigForm.provider === 'supabase'}
+                            onChange={() => setDbConfigForm(c => ({ ...c, provider: 'supabase' }))}
+                            className="text-gold-600 focus:ring-gold-500"
+                          />
+                          <div>
+                            <span className="block text-xs font-bold text-stone-900">Supabase (Postgres REST)</span>
+                            <span className="block text-[10px] text-stone-500 font-mono">Recommended & Free</span>
+                          </div>
+                        </label>
+
+                        <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                          dbConfigForm.provider === 'firebase'
+                            ? 'bg-gold-50/80 border-gold-500 shadow-xs ring-1 ring-gold-400/30'
+                            : 'bg-warmwhite-50 border-gold-400/20 hover:bg-gold-50/40'
+                        }`}>
+                          <input
+                            type="radio"
+                            name="dbProvider"
+                            checked={dbConfigForm.provider === 'firebase'}
+                            onChange={() => setDbConfigForm(c => ({ ...c, provider: 'firebase' }))}
+                            className="text-gold-600 focus:ring-gold-500"
+                          />
+                          <div>
+                            <span className="block text-xs font-bold text-stone-900">Firebase Realtime DB</span>
+                            <span className="block text-[10px] text-stone-500 font-mono">Google Cloud REST DB</span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {dbConfigForm.provider === 'supabase' && (
+                      <div className="space-y-4 p-4 rounded-2xl bg-warmwhite-50 border border-gold-400/25">
+                        <div>
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                            Supabase Project URL
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="https://xyzabcdefg.supabase.co"
+                            value={dbConfigForm.supabaseUrl || ''}
+                            onChange={(e) => setDbConfigForm(c => ({ ...c, supabaseUrl: e.target.value.trim() }))}
+                            className="w-full px-4 py-2.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                          />
+                          <p className="text-[10px] text-stone-500 font-mono mt-1">
+                            Found in Supabase Project Settings → API → Project URL
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                            Supabase Anon Public API Key
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            value={dbConfigForm.supabaseKey || ''}
+                            onChange={(e) => setDbConfigForm(c => ({ ...c, supabaseKey: e.target.value.trim() }))}
+                            className="w-full px-4 py-2.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                          />
+                          <p className="text-[10px] text-stone-500 font-mono mt-1">
+                            Found in Supabase Project Settings → API → Project API Keys (anon public)
+                          </p>
+                        </div>
+
+                        <div className="pt-2 border-t border-gold-400/15">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-mono font-bold text-stone-800 uppercase tracking-wider">
+                              Supabase SQL Table Schema
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleCopySql}
+                              className="text-xs font-mono text-gold-800 hover:text-gold-950 inline-flex items-center gap-1 font-bold cursor-pointer"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>{copiedSql ? 'Copied to Clipboard!' : 'Copy SQL Schema'}</span>
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-stone-600 leading-relaxed font-mono">
+                            Paste the schema into Supabase SQL Editor to create the <code className="bg-white px-1.5 py-0.5 rounded border border-gold-400/30 font-bold">inquiries</code> table with Row Level Security.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {dbConfigForm.provider === 'firebase' && (
+                      <div className="space-y-4 p-4 rounded-2xl bg-warmwhite-50 border border-gold-400/25">
+                        <div>
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                            Firebase Realtime Database URL
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="https://your-project-default-rtdb.firebaseio.com"
+                            value={dbConfigForm.firebaseUrl || ''}
+                            onChange={(e) => setDbConfigForm(c => ({ ...c, firebaseUrl: e.target.value.trim() }))}
+                            className="w-full px-4 py-2.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                          />
+                          <p className="text-[10px] text-stone-500 font-mono mt-1">
+                            Found in Firebase Console → Build → Realtime Database
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        Instant Email Notification Recipient
+                      </label>
+                      <input
+                        type="email"
+                        value={dbConfigForm.recipientEmail || 'bharathlokesh07@gmail.com'}
+                        onChange={(e) => setDbConfigForm(c => ({ ...c, recipientEmail: e.target.value.trim() }))}
+                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      />
+                      <p className="text-[10px] text-stone-500 font-mono mt-1">
+                        Form submissions also forward an email alert directly to this address via FormSubmit AJAX.
+                      </p>
+                    </div>
+
+                    {dbTestResult.message && (
+                      <div className={`p-3.5 rounded-xl text-xs font-mono border ${
+                        dbTestResult.success
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : dbTestResult.testing
+                          ? 'bg-gold-50 text-gold-800 border-gold-300'
+                          : 'bg-red-50 text-red-700 border-red-200'
+                      }`}>
+                        {dbTestResult.message}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={handleTestDbConnection}
+                        disabled={dbTestResult.testing}
+                        className="px-4 py-2.5 rounded-xl bg-white hover:bg-gold-50 text-stone-900 border border-gold-400/40 text-xs font-mono font-bold transition-all shadow-xs cursor-pointer active:scale-98 disabled:opacity-50"
+                      >
+                        {dbTestResult.testing ? 'Testing...' : 'Test Connection'}
+                      </button>
+
+                      <button
+                        type="submit"
+                        className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-sm cursor-pointer"
+                      >
+                        Save Database Config
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
