@@ -230,8 +230,20 @@ export function PortfolioProvider({ children }) {
 
     initFetch();
 
+    // Auto-poll Supabase every 15 seconds so new visitor messages appear automatically in real-time!
+    const pollInterval = setInterval(() => {
+      if (mounted) {
+        fetchInquiries().then(res => {
+          if (mounted && res && Array.isArray(res.inquiries)) {
+            setInquiries(res.inquiries);
+          }
+        }).catch(() => {});
+      }
+    }, 15000);
+
     return () => {
       mounted = false;
+      clearInterval(pollInterval);
     };
   }, []);
 
@@ -358,11 +370,14 @@ export function PortfolioProvider({ children }) {
   const addInquiry = (inquiryData) => {
     const newInq = {
       ...inquiryData,
-      id: `inq-${Date.now()}`,
-      date: new Date().toISOString(),
-      read: false
+      id: inquiryData.id || `inq-${Date.now()}`,
+      date: inquiryData.date || inquiryData.created_at || new Date().toISOString(),
+      read: inquiryData.read ?? false
     };
-    setInquiries(prev => [newInq, ...prev]);
+    setInquiries(prev => {
+      if (prev.some(i => i.id === newInq.id)) return prev;
+      return [newInq, ...prev];
+    });
     return newInq;
   };
 

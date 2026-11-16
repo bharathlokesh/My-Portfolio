@@ -787,10 +787,10 @@ export default function AdminDashboard() {
                           <span className="font-bold text-stone-800 truncate block">{adminEmail}</span>
                         </div>
                         <div>
-                          <span className="text-stone-400 block">Storage Engine:</span>
+                          <span className="text-stone-400 block">Database / Engine:</span>
                           <span className="font-bold text-emerald-800 flex items-center gap-1.5 mt-0.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            Persistent Local Sync
+                            Supabase Cloud DB (Connected)
                           </span>
                         </div>
                         <div>
