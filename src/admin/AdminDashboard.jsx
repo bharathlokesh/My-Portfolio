@@ -29,11 +29,9 @@ import {
   Sparkles,
   ShieldCheck,
   RefreshCw,
-  Copy,
   Phone,
   MapPin
 } from 'lucide-react';
-import { getDbConfig, saveDbConfig, testDbConnection, isSupabaseReady, isFirebaseReady } from '../services/inquiryService';
 
 export default function AdminDashboard() {
   const {
@@ -55,7 +53,6 @@ export default function AdminDashboard() {
     deleteInquiry,
     markInquiryRead,
     refreshInquiriesFromCloud,
-    cloudSyncStatus = { source: 'local' },
     resetToDefaults,
     exportData,
     importData
@@ -96,26 +93,8 @@ export default function AdminDashboard() {
   // Inline New Skill State
   const [newSkillForm, setNewSkillForm] = useState({});
 
-  // Database Configuration State
-  const [dbConfigForm, setDbConfigForm] = useState(getDbConfig());
-  const [dbTestResult, setDbTestResult] = useState({ testing: false, success: null, message: '' });
-  const [copiedSql, setCopiedSql] = useState(false);
+  // Inquiry refresh state
   const [isRefreshingInquiries, setIsRefreshingInquiries] = useState(false);
-
-  const handleTestDbConnection = async () => {
-    setDbTestResult({ testing: true, success: null, message: 'Testing connection...' });
-    const res = await testDbConnection(dbConfigForm);
-    setDbTestResult({ testing: false, success: res.success, message: res.success ? res.message : res.error });
-  };
-
-  const handleSaveDbConfig = (e) => {
-    e.preventDefault();
-    saveDbConfig(dbConfigForm);
-    showToast('Database configuration saved!');
-    if (refreshInquiriesFromCloud) {
-      refreshInquiriesFromCloud();
-    }
-  };
 
   const handleSyncInquiries = async () => {
     if (!refreshInquiriesFromCloud) return;
@@ -123,32 +102,10 @@ export default function AdminDashboard() {
     const res = await refreshInquiriesFromCloud();
     setIsRefreshingInquiries(false);
     if (res.success) {
-      showToast(res.source !== 'local' ? `Synced ${res.count || 0} inquiries from ${res.source}!` : 'Synced with local cache.');
+      showToast(`Synced ${res.count || 0} inquiries from Supabase!`);
     } else {
       showToast('Sync error: ' + (res.error || 'Failed to fetch'));
     }
-  };
-
-  const handleCopySql = () => {
-    const sql = `-- Run this in your Supabase SQL Editor:
-create table if not exists inquiries (
-  id uuid default gen_random_uuid() primary key,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  name text not null,
-  email text not null,
-  subject text default 'Portfolio Inquiry',
-  message text not null,
-  read boolean default false
-);
-
-alter table inquiries enable row level security;
-create policy "Allow public insert" on inquiries for insert to public with check (true);
-create policy "Allow public select" on inquiries for select to public using (true);
-create policy "Allow public update" on inquiries for update to public using (true);
-create policy "Allow public delete" on inquiries for delete to public using (true);`;
-    navigator.clipboard.writeText(sql);
-    setCopiedSql(true);
-    setTimeout(() => setCopiedSql(false), 2500);
   };
 
   // Show Toast Helper
@@ -1656,18 +1613,10 @@ create policy "Allow public delete" on inquiries for delete to public using (tru
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2.5">
-                    {/* Cloud Database Connection Indicator */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-medium shadow-xs bg-warmwhite-50">
-                      <span className={`w-2 h-2 rounded-full ${
-                        cloudSyncStatus.source !== 'local' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
-                      }`} />
-                      <span className="text-stone-700">
-                        {cloudSyncStatus.source === 'supabase'
-                          ? 'Supabase DB'
-                          : cloudSyncStatus.source === 'firebase'
-                          ? 'Firebase DB'
-                          : 'Local Storage'}
-                      </span>
+                    {/* Supabase Status Badge */}
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 text-xs font-mono font-medium shadow-xs bg-emerald-50 text-emerald-800">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-semibold">Supabase Connected</span>
                     </div>
 
                     <button
@@ -1675,19 +1624,10 @@ create policy "Allow public delete" on inquiries for delete to public using (tru
                       disabled={isRefreshingInquiries}
                       type="button"
                       className="px-3.5 py-2 rounded-xl border border-gold-400/40 hover:bg-gold-50 text-xs font-mono text-stone-800 flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98 disabled:opacity-50"
-                      title="Sync inquiries from database"
+                      title="Sync inquiries from Supabase"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 text-gold-700 ${isRefreshingInquiries ? 'animate-spin' : ''}`} />
                       <span>{isRefreshingInquiries ? 'Syncing...' : 'Sync Now'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveTab('settings')}
-                      type="button"
-                      className="btn-gold px-3.5 py-2 rounded-xl text-stone-950 font-bold text-xs font-mono flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
-                    >
-                      <Database className="w-3.5 h-3.5" />
-                      <span>Configure DB</span>
                     </button>
                   </div>
                 </div>
@@ -1712,16 +1652,9 @@ create policy "Allow public delete" on inquiries for delete to public using (tru
                       <h4 className="font-display font-bold text-stone-900 text-sm mb-1">
                         No inquiries received yet
                       </h4>
-                      <p className="text-xs font-mono text-stone-500 max-w-sm mx-auto mb-4">
+                      <p className="text-xs font-mono text-stone-500 max-w-sm mx-auto">
                         When visitors fill out the "Let's Build Something New" form on your portfolio, their messages appear right here.
                       </p>
-                      <button
-                        onClick={() => setActiveTab('settings')}
-                        type="button"
-                        className="px-4 py-2 rounded-xl bg-white border border-gold-400/40 hover:bg-gold-50 text-xs font-mono font-bold text-stone-900 shadow-xs cursor-pointer"
-                      >
-                        Link Database (Supabase / Firebase) →
-                      </button>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -2036,209 +1969,6 @@ create policy "Allow public delete" on inquiries for delete to public using (tru
                       <span>Restore Factory Defaults</span>
                     </button>
                   </div>
-                </div>
-
-                {/* Cloud Database (Supabase / Firebase) Setup */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gold-400/20 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-2xl bg-gold-500/15 text-gold-800 border border-gold-400/30">
-                        <Database className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-display font-bold text-stone-900">
-                          Cloud Database & Inquiries Integration
-                        </h3>
-                        <p className="text-xs text-stone-500 font-mono">
-                          Connect Supabase or Firebase to receive inquiries from any visitor anywhere in the world.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const isCloudReady = (dbConfigForm.provider === 'supabase' && isSupabaseReady(dbConfigForm)) ||
-                                             (dbConfigForm.provider === 'firebase' && isFirebaseReady(dbConfigForm));
-                        return (
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold border ${
-                            isCloudReady
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              : 'bg-amber-50 text-amber-800 border-amber-200'
-                          }`}>
-                            <span className={`w-2 h-2 rounded-full ${
-                              isCloudReady ? 'bg-emerald-500' : 'bg-amber-500'
-                            }`} />
-                            <span>{isCloudReady ? 'Cloud Configured' : 'Needs Setup / Local Only'}</span>
-                          </span>
-                        );
-                      })()}
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleSaveDbConfig} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
-                        Database Provider
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                          dbConfigForm.provider === 'supabase'
-                            ? 'bg-gold-50/80 border-gold-500 shadow-xs ring-1 ring-gold-400/30'
-                            : 'bg-warmwhite-50 border-gold-400/20 hover:bg-gold-50/40'
-                        }`}>
-                          <input
-                            type="radio"
-                            name="dbProvider"
-                            checked={dbConfigForm.provider === 'supabase'}
-                            onChange={() => setDbConfigForm(c => ({ ...c, provider: 'supabase' }))}
-                            className="text-gold-600 focus:ring-gold-500"
-                          />
-                          <div>
-                            <span className="block text-xs font-bold text-stone-900">Supabase (Postgres REST)</span>
-                            <span className="block text-[10px] text-stone-500 font-mono">Recommended & Free</span>
-                          </div>
-                        </label>
-
-                        <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                          dbConfigForm.provider === 'firebase'
-                            ? 'bg-gold-50/80 border-gold-500 shadow-xs ring-1 ring-gold-400/30'
-                            : 'bg-warmwhite-50 border-gold-400/20 hover:bg-gold-50/40'
-                        }`}>
-                          <input
-                            type="radio"
-                            name="dbProvider"
-                            checked={dbConfigForm.provider === 'firebase'}
-                            onChange={() => setDbConfigForm(c => ({ ...c, provider: 'firebase' }))}
-                            className="text-gold-600 focus:ring-gold-500"
-                          />
-                          <div>
-                            <span className="block text-xs font-bold text-stone-900">Firebase Realtime DB</span>
-                            <span className="block text-[10px] text-stone-500 font-mono">Google Cloud REST DB</span>
-                          </div>
-                        </label>
-                      </div>
-                    </div>
-
-                    {dbConfigForm.provider === 'supabase' && (
-                      <div className="space-y-4 p-4 rounded-2xl bg-warmwhite-50 border border-gold-400/25">
-                        <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
-                            Supabase Project URL
-                          </label>
-                          <input
-                            type="url"
-                            placeholder="https://xyzabcdefg.supabase.co"
-                            value={dbConfigForm.supabaseUrl || ''}
-                            onChange={(e) => setDbConfigForm(c => ({ ...c, supabaseUrl: e.target.value.trim() }))}
-                            className="w-full px-4 py-2.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
-                          />
-                          <p className="text-[10px] text-stone-500 font-mono mt-1">
-                            Found in Supabase Project Settings → API → Project URL
-                          </p>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
-                            Supabase Anon Public API Key
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                            value={dbConfigForm.supabaseKey || ''}
-                            onChange={(e) => setDbConfigForm(c => ({ ...c, supabaseKey: e.target.value.trim() }))}
-                            className="w-full px-4 py-2.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
-                          />
-                          <p className="text-[10px] text-stone-500 font-mono mt-1">
-                            Found in Supabase Project Settings → API → Project API Keys (anon public)
-                          </p>
-                        </div>
-
-                        <div className="pt-2 border-t border-gold-400/15">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-mono font-bold text-stone-800 uppercase tracking-wider">
-                              Supabase SQL Table Schema
-                            </span>
-                            <button
-                              type="button"
-                              onClick={handleCopySql}
-                              className="text-xs font-mono text-gold-800 hover:text-gold-950 inline-flex items-center gap-1 font-bold cursor-pointer"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>{copiedSql ? 'Copied to Clipboard!' : 'Copy SQL Schema'}</span>
-                            </button>
-                          </div>
-                          <p className="text-[11px] text-stone-600 leading-relaxed font-mono">
-                            Paste the schema into Supabase SQL Editor to create the <code className="bg-white px-1.5 py-0.5 rounded border border-gold-400/30 font-bold">inquiries</code> table with Row Level Security.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {dbConfigForm.provider === 'firebase' && (
-                      <div className="space-y-4 p-4 rounded-2xl bg-warmwhite-50 border border-gold-400/25">
-                        <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
-                            Firebase Realtime Database URL
-                          </label>
-                          <input
-                            type="url"
-                            placeholder="https://your-project-default-rtdb.firebaseio.com"
-                            value={dbConfigForm.firebaseUrl || ''}
-                            onChange={(e) => setDbConfigForm(c => ({ ...c, firebaseUrl: e.target.value.trim() }))}
-                            className="w-full px-4 py-2.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
-                          />
-                          <p className="text-[10px] text-stone-500 font-mono mt-1">
-                            Found in Firebase Console → Build → Realtime Database
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
-                        Instant Email Notification Recipient
-                      </label>
-                      <input
-                        type="email"
-                        value={dbConfigForm.recipientEmail || 'bharathlokesh07@gmail.com'}
-                        onChange={(e) => setDbConfigForm(c => ({ ...c, recipientEmail: e.target.value.trim() }))}
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
-                      />
-                      <p className="text-[10px] text-stone-500 font-mono mt-1">
-                        Form submissions also forward an email alert directly to this address via FormSubmit AJAX.
-                      </p>
-                    </div>
-
-                    {dbTestResult.message && (
-                      <div className={`p-3.5 rounded-xl text-xs font-mono border ${
-                        dbTestResult.success
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                          : dbTestResult.testing
-                          ? 'bg-gold-50 text-gold-800 border-gold-300'
-                          : 'bg-red-50 text-red-700 border-red-200'
-                      }`}>
-                        {dbTestResult.message}
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={handleTestDbConnection}
-                        disabled={dbTestResult.testing}
-                        className="px-4 py-2.5 rounded-xl bg-white hover:bg-gold-50 text-stone-900 border border-gold-400/40 text-xs font-mono font-bold transition-all shadow-xs cursor-pointer active:scale-98 disabled:opacity-50"
-                      >
-                        {dbTestResult.testing ? 'Testing...' : 'Test Connection'}
-                      </button>
-
-                      <button
-                        type="submit"
-                        className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-sm cursor-pointer"
-                      >
-                        Save Database Config
-                      </button>
-                    </div>
-                  </form>
                 </div>
               </div>
             )}

@@ -174,37 +174,31 @@ export function PortfolioProvider({ children }) {
   });
 
   const [cloudSyncStatus, setCloudSyncStatus] = useState({
-    source: 'local',
+    source: 'supabase',
     lastChecked: null,
     isSyncing: false,
     error: null
   });
 
-  // Fetch inquiries from Cloud Database on mount
+  // Fetch inquiries from Supabase
   const refreshInquiriesFromCloud = async () => {
     setCloudSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
     try {
       const res = await fetchInquiries();
-      if (res.source !== 'local' && Array.isArray(res.inquiries)) {
+      if (Array.isArray(res.inquiries)) {
         setInquiries(res.inquiries);
-        setCloudSyncStatus({
-          source: res.source,
-          lastChecked: new Date().toISOString(),
-          isSyncing: false,
-          error: null
-        });
-        return { success: true, count: res.inquiries.length, source: res.source };
       }
       setCloudSyncStatus({
-        source: 'local',
+        source: 'supabase',
         lastChecked: new Date().toISOString(),
         isSyncing: false,
         error: null
       });
-      return { success: true, source: 'local' };
+      return { success: true, count: res.inquiries ? res.inquiries.length : 0, source: 'supabase' };
     } catch (err) {
       setCloudSyncStatus(prev => ({
         ...prev,
+        source: 'supabase',
         isSyncing: false,
         error: err.message
       }));
@@ -218,10 +212,10 @@ export function PortfolioProvider({ children }) {
       try {
         const res = await fetchInquiries();
         if (!mounted) return;
-        if (res && res.source !== 'local' && Array.isArray(res.inquiries)) {
+        if (res && Array.isArray(res.inquiries)) {
           setInquiries(res.inquiries);
           setCloudSyncStatus({
-            source: res.source,
+            source: 'supabase',
             lastChecked: new Date().toISOString(),
             isSyncing: false,
             error: null
@@ -229,7 +223,7 @@ export function PortfolioProvider({ children }) {
         }
       } catch (err) {
         if (mounted) {
-          console.warn('Initial inquiry sync failed:', err);
+          console.warn('Initial Supabase inquiry sync failed:', err);
         }
       }
     };
