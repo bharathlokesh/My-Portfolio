@@ -1020,7 +1020,7 @@ export default function AdminDashboard() {
               <form onSubmit={handleUpdateCredentials} className="space-y-4 max-w-md">
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
-                    Registered Admin Gmail / Email *
+                    Admin Login ID (Gmail / Email) *
                   </label>
                   <input
                     type="email"
@@ -1031,7 +1031,7 @@ export default function AdminDashboard() {
                     className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
                   />
                   <span className="text-[10px] font-mono text-stone-500 mt-1 block">
-                    Current login email: <strong className="text-stone-800">{adminEmail}</strong>
+                    Current Login ID: <strong className="text-stone-800">{adminEmail}</strong>
                   </span>
                 </div>
 

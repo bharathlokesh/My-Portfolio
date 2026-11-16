@@ -18,7 +18,7 @@ export default function Login() {
     setError('');
 
     if (!email.trim() || !password.trim()) {
-      setError('Please provide both your registered Gmail and password.');
+      setError('Please provide both Login ID and password.');
       return;
     }
 
@@ -38,7 +38,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-warmwhite-200 text-stone-900 flex flex-col justify-center items-center px-4 relative selection:bg-gold-500/20 selection:text-gold-900">
-      
+
       {/* Background Subtle Gold Grid Overlay - GPU isolated */}
       <div className="fixed inset-0 tech-grid-pattern opacity-40 pointer-events-none z-0 transform-gpu will-change-transform" />
 
@@ -56,7 +56,7 @@ export default function Login() {
 
       {/* Main Login Card - Light Gold & White Luxury Glass */}
       <div className="w-full max-w-md bg-white/95 border border-gold-400/40 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-gold-900/10 relative overflow-hidden backdrop-blur-xl z-10">
-        
+
         {/* Ambient Top Border Highlight */}
         <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-transparent via-gold-400 to-transparent" />
 
@@ -65,7 +65,7 @@ export default function Login() {
           <div className="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-400/40 flex items-center justify-center text-gold-700 mb-4 shadow-sm">
             <Shield className="w-7 h-7 stroke-[1.8]" />
           </div>
-          
+
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-[10px] font-mono tracking-widest uppercase text-gold-900 font-bold mb-2">
             <Lock className="w-3 h-3 text-gold-700" />
             <span>Authenticated Admin Access</span>
@@ -91,7 +91,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
-              Registered Gmail / Email
+              Login ID
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -99,7 +99,7 @@ export default function Login() {
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="bharathlokesh07@gmail.com"
+                placeholder="Enter Login ID"
                 autoFocus
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all font-mono shadow-sm"
               />
@@ -152,7 +152,7 @@ export default function Login() {
         {/* Credentials Helper Pill */}
         <div className="mt-6 pt-5 border-t border-gold-400/20 text-center">
           <div className="inline-block p-2.5 rounded-xl bg-gold-50/80 border border-gold-400/30 text-[11px] font-mono text-stone-600">
-            <span className="text-stone-500">Registered Access: </span>
+            <span className="text-stone-500">Default Login ID: </span>
             <span className="text-gold-900 font-bold">bharathlokesh07@gmail.com</span>
             <span className="text-stone-400"> / </span>
             <span className="text-gold-900 font-bold">bharath2026</span>
