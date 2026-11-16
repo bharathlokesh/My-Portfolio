@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { usePortfolio } from '../context/PortfolioContext';
 import { 
   Code, 
   Globe, 
@@ -9,98 +10,27 @@ import {
   Users 
 } from 'lucide-react';
 
-const SKILL_CATEGORIES = [
-  {
-    id: 'programming',
-    title: 'Programming',
-    icon: Code,
-    color: 'from-amber-400/20 to-gold-400/20',
-    borderColor: 'border-gold-400/40',
-    iconColor: 'text-gold-700',
-    skills: [
-      { name: 'Python', detail: 'ML & Scripting' },
-      { name: 'C Programming', detail: 'Systems & Low-Level' },
-      { name: 'C++', detail: 'Embedded & Performance' },
-      { name: 'Java', detail: 'OOP & Core Logic' }
-    ]
-  },
-  {
-    id: 'web',
-    title: 'Web',
-    icon: Globe,
-    color: 'from-gold-400/20 to-yellow-400/20',
-    borderColor: 'border-gold-400/40',
-    iconColor: 'text-gold-700',
-    skills: [
-      { name: 'HTML', detail: 'Semantic Markup' },
-      { name: 'CSS', detail: 'Modern Styling' },
-      { name: 'JavaScript', detail: 'Dynamic Logic' },
-      { name: 'React', detail: 'Component Architecture' }
-    ]
-  },
-  {
-    id: 'ai-ml',
-    title: 'AI / ML',
-    icon: BrainCircuit,
-    color: 'from-amber-500/20 to-champagne-400/20',
-    borderColor: 'border-gold-400/40',
-    iconColor: 'text-gold-700',
-    skills: [
-      { name: 'Machine Learning', detail: 'Models & Inference' },
-      { name: 'Computer Vision', detail: 'Image Processing & Recognition' },
-      { name: 'Data Analysis', detail: 'Insights & Preprocessing' }
-    ]
-  },
-  {
-    id: 'iot',
-    title: 'IoT',
-    icon: Cpu,
-    color: 'from-gold-500/20 to-amber-600/20',
-    borderColor: 'border-gold-400/40',
-    iconColor: 'text-gold-700',
-    skills: [
-      { name: 'ESP32', detail: 'Wi-Fi & Microcontroller' },
-      { name: 'Arduino', detail: 'Hardware Prototyping' },
-      { name: 'MQTT', detail: 'Lightweight Messaging' },
-      { name: 'Sensors', detail: 'Environmental & Telemetry' }
-    ]
-  },
-  {
-    id: 'tools',
-    title: 'Tools',
-    icon: Wrench,
-    color: 'from-champagne-400/20 to-gold-500/20',
-    borderColor: 'border-gold-400/40',
-    iconColor: 'text-gold-700',
-    skills: [
-      { name: 'Git', detail: 'Version Control' },
-      { name: 'GitHub', detail: 'Repo Management' },
-      { name: 'VS Code', detail: 'Development Environment' },
-      { name: 'Jupyter', detail: 'Notebooks & Exploration' }
-    ]
-  },
-  {
-    id: 'soft-skills',
-    title: 'Soft Skills',
-    icon: Users,
-    color: 'from-amber-400/20 to-gold-500/20',
-    borderColor: 'border-gold-400/40',
-    iconColor: 'text-gold-700',
-    skills: [
-      { name: 'Problem Solving', detail: 'Analytical & Structured' },
-      { name: 'Team Collaboration', detail: 'Agile & Communication' },
-      { name: 'Adaptability', detail: 'Continuous Tech Learning' },
-      { name: 'Project Planning', detail: 'Time & Delivery Focus' }
-    ]
-  }
-];
+const CATEGORY_META = {
+  programming: { icon: Code, color: 'from-amber-400/20 to-gold-400/20', borderColor: 'border-gold-400/40', iconColor: 'text-gold-700' },
+  web: { icon: Globe, color: 'from-gold-400/20 to-yellow-400/20', borderColor: 'border-gold-400/40', iconColor: 'text-gold-700' },
+  'ai-ml': { icon: BrainCircuit, color: 'from-amber-500/20 to-champagne-400/20', borderColor: 'border-gold-400/40', iconColor: 'text-gold-700' },
+  iot: { icon: Cpu, color: 'from-gold-500/20 to-amber-600/20', borderColor: 'border-gold-400/40', iconColor: 'text-gold-700' },
+  tools: { icon: Wrench, color: 'from-champagne-400/20 to-gold-500/20', borderColor: 'border-gold-400/40', iconColor: 'text-gold-700' },
+  'soft-skills': { icon: Users, color: 'from-amber-400/20 to-gold-500/20', borderColor: 'border-gold-400/40', iconColor: 'text-gold-700' },
+};
 
 export default function Skills() {
+  const { skills: contextSkills } = usePortfolio();
   const [selectedFilter, setSelectedFilter] = useState('all');
 
+  const mergedCategories = contextSkills.map(cat => ({
+    ...cat,
+    ...(CATEGORY_META[cat.id] || { icon: Sparkles, color: 'from-gold-400/20 to-amber-400/20', borderColor: 'border-gold-400/40', iconColor: 'text-gold-700' })
+  }));
+
   const filteredCategories = selectedFilter === 'all'
-    ? SKILL_CATEGORIES
-    : SKILL_CATEGORIES.filter(cat => cat.id === selectedFilter);
+    ? mergedCategories
+    : mergedCategories.filter(cat => cat.id === selectedFilter);
 
   return (
     <section id="skills" className="relative pt-8 sm:pt-10 pb-10 sm:pb-12 overflow-hidden border-b border-gold-400/20">
@@ -137,7 +67,7 @@ export default function Skills() {
           >
             All Disciplines
           </button>
-          {SKILL_CATEGORIES.map(category => (
+          {mergedCategories.map(category => (
             <button
               key={category.id}
               onClick={() => setSelectedFilter(category.id)}

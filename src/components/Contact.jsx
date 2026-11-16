@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { usePortfolio } from '../context/PortfolioContext';
 import {
   Mail,
   Send,
@@ -12,6 +13,7 @@ import {
 import { Github, Linkedin, Instagram } from './Icons';
 
 export default function Contact() {
+  const { profile } = usePortfolio();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,9 +23,12 @@ export default function Contact() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
 
-  const placeholderEmail = 'bharathlokesh07@gmail.com';
-  const phoneNumber = '+91 9611673039';
-  const locationText = 'Tumkur, Karnataka, India';
+  const placeholderEmail = profile.email || 'bharathlokesh07@gmail.com';
+  const phoneNumber = profile.phone || '+91 9611673039';
+  const locationText = profile.location || 'Tumkur, Karnataka, India';
+  const githubUrl = profile.social?.github || 'https://github.com/bharathlokesh';
+  const linkedinUrl = profile.social?.linkedin || 'https://www.linkedin.com/in/bharath-lokesh07/?isSelfProfile=true';
+  const instagramUrl = profile.social?.instagram || 'https://www.instagram.com/bhrrtth/';
 
   const handleCopyPhone = (e) => {
     e.preventDefault();
@@ -176,7 +181,7 @@ export default function Contact() {
               <div className="pt-4 border-t border-gold-400/20">
                 <div className="flex items-center gap-3">
                   <a
-                    href="https://github.com/bharathlokesh"
+                    href={githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"
@@ -187,7 +192,7 @@ export default function Contact() {
                   </a>
 
                   <a
-                    href="https://www.linkedin.com/in/bharath-lokesh07/?isSelfProfile=true"
+                    href={linkedinUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"
@@ -198,7 +203,7 @@ export default function Contact() {
                   </a>
 
                   <a
-                    href="https://www.instagram.com/bharatth.07/"
+                    href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2.5 rounded-xl bg-white text-stone-800 hover:text-gold-700 border border-gold-400/40 hover:border-gold-500 transition-all shadow-xs hover:-translate-y-0.5"

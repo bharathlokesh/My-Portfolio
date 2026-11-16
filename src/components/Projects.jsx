@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { projects, projectCategories } from '../data/projects';
+import { usePortfolio } from '../context/PortfolioContext';
 import ProjectCard from './ProjectCard';
 import { Layers, X, CheckCircle } from 'lucide-react';
 
 export default function Projects() {
+  const { projects, categories: projectCategories } = usePortfolio();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeModal, setActiveModal] = useState(null);
 

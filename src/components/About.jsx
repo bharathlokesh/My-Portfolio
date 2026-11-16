@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePortfolio } from '../context/PortfolioContext';
 import {
   Bot,
   BrainCircuit,
@@ -22,6 +23,8 @@ const INTERESTS = [
 ];
 
 export default function About() {
+  const { profile } = usePortfolio();
+
   return (
     <section id="about" className="relative pt-8 sm:pt-10 pb-10 sm:pb-12 overflow-hidden border-b border-gold-400/20">
       {/* Background golden glows - GPU accelerated */}
@@ -51,16 +54,16 @@ export default function About() {
             {/* Left Column: Bio Narrative */}
             <div className="lg:col-span-7 space-y-3">
               <h3 className="text-xl sm:text-2xl font-display font-bold text-stone-900 flex items-center gap-3">
-                <span>Passionate AI, ML &amp; IoT Explorer</span>
+                <span>{profile.aboutTitle || 'Passionate AI, ML & IoT Explorer'}</span>
               </h3>
 
               <div className="space-y-2.5 text-stone-700 leading-relaxed text-sm sm:text-base">
                 <p>
-                  I’m <strong className="text-stone-950 font-bold">Bharath</strong>, an{' '}
-                  <span className="text-gold-700 font-bold">AI/ML, IoT &amp; Web Developer</span> passionate about transforming ideas into intelligent, connected solutions.
+                  I’m <strong className="text-stone-950 font-bold">{profile.name ? profile.name.split(' ')[0] : 'Bharath'}</strong>, an{' '}
+                  <span className="text-gold-700 font-bold">{profile.title || 'AI/ML, IoT & Web Developer'}</span> passionate about transforming ideas into intelligent, connected solutions.
                 </p>
                 <p>
-                  I combine <strong className="text-stone-900 font-semibold">artificial intelligence, embedded systems, IoT, and modern web technologies</strong> to design and develop automation systems that connect intelligent software with the physical world.
+                  {profile.aboutBio || 'I combine artificial intelligence, embedded systems, IoT, and modern web technologies to design and develop automation systems that connect intelligent software with the physical world.'}
                 </p>
               </div>
             </div>

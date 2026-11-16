@@ -1,4 +1,9 @@
 import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { PortfolioProvider } from './context/PortfolioContext';
+import { AuthProvider } from './context/AuthContext';
+import AdminPage from './admin/AdminPage';
+
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -9,12 +14,11 @@ import Certifications from './components/Certifications';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
-export default function App() {
+function PortfolioLayout() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add('light');
     root.classList.remove('dark');
-    // Clear any previously saved dark theme preference
     localStorage.removeItem('portfolio-theme-gold');
   }, []);
 
@@ -41,5 +45,26 @@ export default function App() {
       {/* Footer */}
       <Footer />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <PortfolioProvider>
+      <AuthProvider>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <Routes>
+            {/* Public Portfolio Route */}
+            <Route path="/" element={<PortfolioLayout />} />
+
+            {/* Admin Route - Login or Dashboard */}
+            <Route path="/admin" element={<AdminPage />} />
+
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </PortfolioProvider>
   );
 }

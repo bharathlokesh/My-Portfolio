@@ -1,8 +1,11 @@
 import React from 'react';
+import { usePortfolio } from '../context/PortfolioContext';
 import { ArrowDown, Download } from 'lucide-react';
 import HeroVisual from './HeroVisual';
 
 export default function Hero() {
+  const { profile } = usePortfolio();
+
   const handleScrollToProjects = (e) => {
     e.preventDefault();
     const projectsSection = document.getElementById('projects');
@@ -39,18 +42,18 @@ export default function Hero() {
             </div>
 
             {/* Large Name */}
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight text-stone-900 mb-2 leading-tight">
-              BHARATH LOKESH
+            <h1 className="font-display font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight text-stone-900 mb-2 leading-tight uppercase">
+              {profile.name || 'BHARATH LOKESH'}
             </h1>
 
             {/* Main Title */}
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-gradient-gold tracking-wide mb-4">
-              AI &amp; ML DEVELOPER
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-gradient-gold tracking-wide mb-4 uppercase">
+              {profile.title || 'AI & ML DEVELOPER'}
             </h2>
 
             {/* Description */}
             <p className="text-base sm:text-lg md:text-xl text-stone-600 max-w-2xl leading-relaxed mb-6 font-normal">
-              Specializing in Machine Learning, Computer Vision, and connected IoT systems — engineering intelligent solutions from embedded edge to the web.
+              {profile.heroBio || 'Specializing in Machine Learning, Computer Vision, and connected IoT systems — engineering intelligent solutions from embedded edge to the web.'}
             </p>
 
             {/* Buttons */}

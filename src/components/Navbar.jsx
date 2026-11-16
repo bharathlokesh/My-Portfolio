@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
+import { usePortfolio } from '../context/PortfolioContext';
 import profileImg from '../assets/profile.jpg';
 
 const NAV_ITEMS = [
@@ -13,9 +14,13 @@ const NAV_ITEMS = [
 ];
 
 export default function Navbar() {
+  const { profile } = usePortfolio();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+
+  const avatarSrc = profile?.profileImage || profileImg;
+  const displayName = profile?.name || 'Bharath Lokesh';
 
   useEffect(() => {
     const sectionIds = NAV_ITEMS.map(item => item.href.substring(1));
@@ -74,14 +79,14 @@ export default function Navbar() {
             <div className="relative flex items-center justify-center w-11 h-11 group-hover:scale-105 transition-transform duration-300">
               <div className="w-full h-full rounded-full overflow-hidden border-2 border-gold-400/60 group-hover:border-gold-400 transition-all duration-300 shadow-sm shadow-gold-500/20">
                 <img
-                  src={profileImg}
-                  alt="Bharath Lokesh"
+                  src={avatarSrc}
+                  alt={displayName}
                   className="w-full h-full object-cover object-[center_28%] group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
             </div>
             <span className="font-stylish font-bold tracking-tight text-base sm:text-lg text-stone-900 group-hover:text-gold-700 transition-colors">
-              Bharath Lokesh
+              {displayName}
             </span>
           </a>
 
