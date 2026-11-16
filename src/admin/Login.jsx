@@ -149,16 +149,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Credentials Helper Pill */}
-        <div className="mt-6 pt-5 border-t border-gold-400/20 text-center">
-          <div className="inline-block p-2.5 rounded-xl bg-gold-50/80 border border-gold-400/30 text-[11px] font-mono text-stone-600">
-            <span className="text-stone-500">Default Login ID: </span>
-            <span className="text-gold-900 font-bold">bharathlokesh07@gmail.com</span>
-            <span className="text-stone-400"> / </span>
-            <span className="text-gold-900 font-bold">bharath2026</span>
-          </div>
-        </div>
-
       </div>
 
       {/* Footer Branding */}
