@@ -6,25 +6,35 @@
 
 const DB_CONFIG_KEY = 'bharath_portfolio_db_config_v1';
 
-// Default configuration from environment or localStorage
+// Default configuration from environment (.env) or localStorage
 export function getDbConfig() {
+  const envConfig = {
+    provider: import.meta.env.VITE_DB_PROVIDER || 'supabase', // 'supabase' | 'firebase' | 'local'
+    supabaseUrl: (import.meta.env.VITE_SUPABASE_URL || '').trim(),
+    supabaseKey: (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim(),
+    firebaseUrl: (import.meta.env.VITE_FIREBASE_DB_URL || '').trim(),
+    emailNotify: true,
+    recipientEmail: (import.meta.env.VITE_ALERT_EMAIL || 'bharathlokesh07@gmail.com').trim()
+  };
+
   try {
     const saved = localStorage.getItem(DB_CONFIG_KEY);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      return {
+        provider: parsed.provider || envConfig.provider,
+        supabaseUrl: parsed.supabaseUrl || envConfig.supabaseUrl,
+        supabaseKey: parsed.supabaseKey || envConfig.supabaseKey,
+        firebaseUrl: parsed.firebaseUrl || envConfig.firebaseUrl,
+        emailNotify: parsed.emailNotify !== undefined ? parsed.emailNotify : envConfig.emailNotify,
+        recipientEmail: parsed.recipientEmail || envConfig.recipientEmail
+      };
     }
   } catch (e) {
     console.warn('Failed to read db config from storage', e);
   }
 
-  return {
-    provider: import.meta.env.VITE_DB_PROVIDER || 'supabase', // 'supabase' | 'firebase' | 'local'
-    supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
-    supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-    firebaseUrl: import.meta.env.VITE_FIREBASE_DB_URL || '',
-    emailNotify: true,
-    recipientEmail: 'bharathlokesh07@gmail.com'
-  };
+  return envConfig;
 }
 
 export function saveDbConfig(config) {
