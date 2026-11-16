@@ -13,7 +13,7 @@ import {
 import { Github, Linkedin, Instagram } from './Icons';
 
 export default function Contact() {
-  const { profile } = usePortfolio();
+  const { profile, addInquiry } = usePortfolio();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,12 +48,21 @@ export default function Contact() {
     if (!formData.name || !formData.email || !formData.message) return;
 
     setStatus('submitting');
+    if (addInquiry) {
+      addInquiry({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject || 'Portfolio Inquiry',
+        message: formData.message
+      });
+    }
+
     // Simulate responsive transmission
     setTimeout(() => {
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setStatus('idle'), 6000);
-    }, 1000);
+    }, 800);
   };
 
   const handleCopyEmail = () => {

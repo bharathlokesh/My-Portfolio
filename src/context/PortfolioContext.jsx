@@ -72,10 +72,57 @@ const DEFAULT_SKILLS = [
   }
 ];
 
+const DEFAULT_EDUCATION = [
+  {
+    id: 'diploma-aiml',
+    type: 'DIPLOMA SPECIALIZATION',
+    degree: 'Diploma in AI & Machine Learning',
+    institution: 'Government Tool Room and Training Centre (GTTC), Magadi',
+    period: '2023 - 2027',
+    status: 'Active Program',
+    description: 'Diploma studies focused on programming, artificial intelligence, machine learning and emerging technologies.',
+    highlights: [
+      { title: 'Core Programming', desc: 'Python, C, C++, Java, Object-Oriented Design' },
+      { title: 'Machine Learning', desc: 'Supervised/Unsupervised Learning, Neural Nets' },
+      { title: 'Computer Vision', desc: 'OpenCV, Image Processing & Pattern Recognition' },
+      { title: 'IoT Systems', desc: 'Microcontrollers, Sensor Interfacing & MQTT' }
+    ]
+  },
+  {
+    id: 'sslc',
+    type: 'SECONDARY EDUCATION (SSLC)',
+    degree: 'Secondary School Leaving Certificate (SSLC)',
+    institution: 'Mahathma Gandhi High School, Kunigal',
+    period: '2021 - 2023',
+    status: 'Completed',
+    description: 'Completed secondary school education with strong fundamentals in Mathematics, Science, and foundational computer concepts, establishing the analytical groundwork for technical engineering.',
+    highlights: [
+      { title: 'Mathematics & Logic', desc: 'Algebra, Geometry & Analytical Problem Solving' },
+      { title: 'General Science', desc: 'Core Physics, Chemistry & Natural Sciences' },
+      { title: 'Computer Concepts', desc: 'Foundations of Computing & Digital Literacy' },
+      { title: 'Communication Skills', desc: 'English & Regional Language Fluency' }
+    ]
+  }
+];
+
+const DEFAULT_INQUIRIES = [
+  {
+    id: 'inq-1',
+    name: 'Tech Collaboration Team',
+    email: 'connect@robotics-ai.example',
+    subject: 'AI/ML & IoT Collaboration',
+    message: 'Hello Bharath, great portfolio! We reviewed your edge rover and computer vision projects. We would love to connect regarding technical opportunities.',
+    date: '2026-11-15T10:30:00Z',
+    read: false
+  }
+];
+
 const STORAGE_KEYS = {
   PROJECTS: 'bharath_portfolio_projects_v1',
   SKILLS: 'bharath_portfolio_skills_v1',
-  PROFILE: 'bharath_portfolio_profile_v1'
+  PROFILE: 'bharath_portfolio_profile_v1',
+  EDUCATION: 'bharath_portfolio_education_v1',
+  INQUIRIES: 'bharath_portfolio_inquiries_v1'
 };
 
 export function PortfolioProvider({ children }) {
@@ -107,6 +154,24 @@ export function PortfolioProvider({ children }) {
     }
   });
 
+  const [education, setEducation] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.EDUCATION);
+      return saved ? JSON.parse(saved) : DEFAULT_EDUCATION;
+    } catch {
+      return DEFAULT_EDUCATION;
+    }
+  });
+
+  const [inquiries, setInquiries] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.INQUIRIES);
+      return saved ? JSON.parse(saved) : DEFAULT_INQUIRIES;
+    } catch {
+      return DEFAULT_INQUIRIES;
+    }
+  });
+
   // Sync to localStorage whenever state changes
   useEffect(() => {
     try {
@@ -131,6 +196,22 @@ export function PortfolioProvider({ children }) {
       console.warn('Failed to save profile to localStorage', e);
     }
   }, [profile]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.EDUCATION, JSON.stringify(education));
+    } catch (e) {
+      console.warn('Failed to save education to localStorage', e);
+    }
+  }, [education]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(inquiries));
+    } catch (e) {
+      console.warn('Failed to save inquiries to localStorage', e);
+    }
+  }, [inquiries]);
 
   // Project Actions
   const addProject = (projectData) => {
@@ -192,14 +273,56 @@ export function PortfolioProvider({ children }) {
     }));
   };
 
+  // Education Actions
+  const updateEducation = (id, updatedFields) => {
+    setEducation(prev => prev.map(e => e.id === id ? { ...e, ...updatedFields } : e));
+  };
+
+  const addEducation = (item) => {
+    const newEdu = {
+      ...item,
+      id: item.id || `edu-${Date.now()}`
+    };
+    setEducation(prev => [...prev, newEdu]);
+    return newEdu;
+  };
+
+  const deleteEducation = (id) => {
+    setEducation(prev => prev.filter(e => e.id !== id));
+  };
+
+  // Inquiry Actions
+  const addInquiry = (inquiryData) => {
+    const newInq = {
+      ...inquiryData,
+      id: `inq-${Date.now()}`,
+      date: new Date().toISOString(),
+      read: false
+    };
+    setInquiries(prev => [newInq, ...prev]);
+    return newInq;
+  };
+
+  const deleteInquiry = (id) => {
+    setInquiries(prev => prev.filter(i => i.id !== id));
+  };
+
+  const markInquiryRead = (id) => {
+    setInquiries(prev => prev.map(i => i.id === id ? { ...i, read: true } : i));
+  };
+
   // Reset to Defaults
   const resetToDefaults = () => {
     localStorage.removeItem(STORAGE_KEYS.PROJECTS);
     localStorage.removeItem(STORAGE_KEYS.SKILLS);
     localStorage.removeItem(STORAGE_KEYS.PROFILE);
+    localStorage.removeItem(STORAGE_KEYS.EDUCATION);
+    localStorage.removeItem(STORAGE_KEYS.INQUIRIES);
     setProjects(defaultProjects);
     setSkills(DEFAULT_SKILLS);
     setProfile(DEFAULT_PROFILE);
+    setEducation(DEFAULT_EDUCATION);
+    setInquiries(DEFAULT_INQUIRIES);
   };
 
   // Export & Import Data Backup
@@ -208,6 +331,8 @@ export function PortfolioProvider({ children }) {
       projects,
       skills,
       profile,
+      education,
+      inquiries,
       exportedAt: new Date().toISOString()
     };
     return JSON.stringify(data, null, 2);
@@ -219,6 +344,8 @@ export function PortfolioProvider({ children }) {
       if (parsed.projects && Array.isArray(parsed.projects)) setProjects(parsed.projects);
       if (parsed.skills && Array.isArray(parsed.skills)) setSkills(parsed.skills);
       if (parsed.profile && typeof parsed.profile === 'object') setProfile(parsed.profile);
+      if (parsed.education && Array.isArray(parsed.education)) setEducation(parsed.education);
+      if (parsed.inquiries && Array.isArray(parsed.inquiries)) setInquiries(parsed.inquiries);
       return { success: true };
     } catch (e) {
       return { success: false, error: e.message };
@@ -235,12 +362,20 @@ export function PortfolioProvider({ children }) {
         categories,
         skills,
         profile,
+        education,
+        inquiries,
         addProject,
         updateProject,
         deleteProject,
         addSkill,
         deleteSkill,
         updateProfile,
+        updateEducation,
+        addEducation,
+        deleteEducation,
+        addInquiry,
+        deleteInquiry,
+        markInquiryRead,
         resetToDefaults,
         exportData,
         importData
