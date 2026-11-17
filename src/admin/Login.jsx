@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { usePortfolio } from '../context/PortfolioContext';
+import profileImg from '../assets/profile.jpg';
 import { Lock, Shield, Eye, EyeOff, ArrowLeft, KeyRound, AlertCircle, Mail } from 'lucide-react';
 
 export default function Login() {
@@ -11,6 +13,9 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
+  const portfolioContext = usePortfolio();
+  const profile = portfolioContext?.profile;
+  const activeAvatar = profile?.profileImage || profileImg;
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -62,8 +67,20 @@ export default function Login() {
 
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-400/40 flex items-center justify-center text-gold-700 mb-4 shadow-sm">
-            <Shield className="w-7 h-7 stroke-[1.8]" />
+          <div className="relative mb-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-gold-400/60 shadow-md shadow-gold-500/15 bg-gold-100 flex items-center justify-center">
+              <img
+                src={activeAvatar}
+                alt={profile?.name || "Bharath Lokesh"}
+                className="w-full h-full object-cover object-[center_28%]"
+              />
+            </div>
+            <div
+              className="absolute -bottom-1 -right-1 p-1 rounded-lg bg-gradient-to-r from-gold-400 to-amber-500 text-stone-950 border-2 border-white shadow-xs"
+              title="Admin Security Protected"
+            >
+              <Shield className="w-3.5 h-3.5 stroke-[2.2]" />
+            </div>
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-[10px] font-sans tracking-widest uppercase text-gold-900 font-bold mb-2">
@@ -75,7 +92,7 @@ export default function Login() {
             Admin Console
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 mt-1.5">
-            Management portal for Bharath Lokesh Portfolio
+            Management portal for {profile?.name || "Bharath Lokesh"} Portfolio
           </p>
         </div>
 
