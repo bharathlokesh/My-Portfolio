@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { ArrowDown, Download } from 'lucide-react';
+import { ArrowDown, Eye } from 'lucide-react';
 import HeroVisual from './HeroVisual';
+import ResumeModal from './ResumeModal';
 
 export default function Hero() {
   const { profile } = usePortfolio();
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const resumeUrl = `${import.meta.env.BASE_URL}resume/Bharath_Resume.pdf`;
 
   const handleScrollToProjects = (e) => {
     e.preventDefault();
@@ -67,17 +70,15 @@ export default function Hero() {
                 <ArrowDown className="w-4 h-4 animate-bounce text-stone-950" />
               </a>
 
-              <a
-                href={`${import.meta.env.BASE_URL}resume/Bharath_Resume.pdf`}
-                download="Bharath_Resume.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm sm:text-base text-stone-950 bg-white/90 hover:bg-gold-100/60 shadow-sm backdrop-blur-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-gold-400/40"
-                aria-label="Download Resume"
+              <button
+                type="button"
+                onClick={() => setIsResumeModalOpen(true)}
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm sm:text-base text-stone-950 bg-white/90 hover:bg-gold-100/60 shadow-sm backdrop-blur-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-gold-400/40 cursor-pointer"
+                aria-label="View Resume"
               >
-                <Download className="w-4 h-4 text-stone-950" />
-                <span>Download Resume</span>
-              </a>
+                <Eye className="w-4 h-4 text-stone-950" />
+                <span>View Resume</span>
+              </button>
             </div>
 
           </div>
@@ -89,6 +90,13 @@ export default function Hero() {
 
         </div>
       </div>
+
+      {/* Resume Viewer & Download Modal */}
+      <ResumeModal
+        isOpen={isResumeModalOpen}
+        onClose={() => setIsResumeModalOpen(false)}
+        resumeUrl={resumeUrl}
+      />
     </section>
   );
 }
