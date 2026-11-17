@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { usePortfolio } from '../context/PortfolioContext';
 import { useAuth } from '../context/AuthContext';
@@ -83,10 +83,12 @@ export default function AdminDashboard() {
   // Profile Form State
   const [profileForm, setProfileForm] = useState({ ...profile });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const lastProfileRef = useRef(profile);
 
   // Keep form synchronized when cloud profile loads or updates
   useEffect(() => {
-    if (profile) {
+    if (profile && profile !== lastProfileRef.current) {
+      lastProfileRef.current = profile;
       setProfileForm(p => ({
         ...profile,
         // preserve non-empty edits if user is actively typing
