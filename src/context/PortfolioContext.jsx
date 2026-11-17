@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { projects as defaultProjects } from '../data/projects';
 import { fetchInquiries, deleteInquiryCloud, markInquiryReadCloud, subscribeToInquiries } from '../services/inquiryService';
+import { fetchProfileCloud, saveProfileCloud, subscribeToProfileCloud } from '../services/profileService';
 
 const PortfolioContext = createContext(null);
 
@@ -180,6 +181,40 @@ export function PortfolioProvider({ children }) {
     error: null
   });
 
+  const [profileSyncStatus, setProfileSyncStatus] = useState({
+    source: 'supabase',
+    lastChecked: null,
+    isSyncing: false,
+    error: null
+  });
+
+  // Fetch profile from Supabase Cloud
+  const refreshProfileFromCloud = async () => {
+    setProfileSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
+    try {
+      const res = await fetchProfileCloud();
+      if (res && res.success && res.profile) {
+        setProfile(prev => ({
+          ...prev,
+          ...res.profile,
+          social: { ...prev.social, ...(res.profile.social || {}) }
+        }));
+        setProfileSyncStatus({
+          source: 'supabase',
+          lastChecked: res.updatedAt || new Date().toISOString(),
+          isSyncing: false,
+          error: null
+        });
+        return { success: true, profile: res.profile };
+      }
+      setProfileSyncStatus(prev => ({ ...prev, isSyncing: false }));
+      return { success: false, error: 'No cloud profile found' };
+    } catch (err) {
+      setProfileSyncStatus(prev => ({ ...prev, isSyncing: false, error: err.message }));
+      return { success: false, error: err.message };
+    }
+  };
+
   // Fetch inquiries from Supabase
   const refreshInquiriesFromCloud = async () => {
     setCloudSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
@@ -281,6 +316,72 @@ export function PortfolioProvider({ children }) {
     };
   }, []);
 
+  // Sync Profile with Supabase Cloud across all devices & live visitors
+  useEffect(() => {
+    let mounted = true;
+
+    // 1. Initial Cloud Profile Fetch
+    const initProfile = async () => {
+      try {
+        const res = await fetchProfileCloud();
+        if (!mounted) return;
+        if (res && res.success && res.profile) {
+          setProfile(prev => ({
+            ...prev,
+            ...res.profile,
+            social: { ...prev.social, ...(res.profile.social || {}) }
+          }));
+          setProfileSyncStatus({
+            source: 'supabase',
+            lastChecked: res.updatedAt || new Date().toISOString(),
+            isSyncing: false,
+            error: null
+          });
+        }
+      } catch (err) {
+        if (mounted) console.warn('Supabase profile initial load error:', err);
+      }
+    };
+
+    initProfile();
+
+    // 2. Realtime WebSocket Listener (instant sync to mobile and live site)
+    const unsubProfile = subscribeToProfileCloud((cloudProfile) => {
+      if (!mounted) return;
+      if (cloudProfile && typeof cloudProfile === 'object') {
+        setProfile(prev => ({
+          ...prev,
+          ...cloudProfile,
+          social: { ...prev.social, ...(cloudProfile.social || {}) }
+        }));
+        setProfileSyncStatus({
+          source: 'supabase',
+          lastChecked: new Date().toISOString(),
+          isSyncing: false,
+          error: null
+        });
+      }
+    });
+
+    // 3. Auto-sync on window/tab focus (e.g. waking mobile device)
+    const handleFocus = () => {
+      if (mounted) initProfile();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    // 4. Polling backup (ensures mobile browsers without active WebSockets stay updated)
+    const profilePoll = setInterval(() => {
+      if (mounted) initProfile();
+    }, 15000);
+
+    return () => {
+      mounted = false;
+      if (typeof unsubProfile === 'function') unsubProfile();
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(profilePoll);
+    };
+  }, []);
+
   // Sync to localStorage whenever state changes
   useEffect(() => {
     try {
@@ -370,16 +471,44 @@ export function PortfolioProvider({ children }) {
     }));
   };
 
-  // Profile Actions
-  const updateProfile = (updatedFields) => {
-    setProfile(prev => ({
-      ...prev,
+  // Profile Actions (Synchronizes to LocalStorage AND Supabase Cloud)
+  const updateProfile = async (updatedFields) => {
+    const nextProfile = {
+      ...profile,
       ...updatedFields,
       social: {
-        ...prev.social,
+        ...profile.social,
         ...(updatedFields.social || {})
       }
-    }));
+    };
+    // 1. Immediately update local React state
+    setProfile(nextProfile);
+
+    // 2. Persist to browser LocalStorage
+    try {
+      localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(nextProfile));
+    } catch (e) {
+      console.warn('Failed to save profile to localStorage', e);
+    }
+
+    // 3. Persist to Supabase Cloud so all devices & mobile reflect updates live
+    setProfileSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
+    const cloudRes = await saveProfileCloud(nextProfile);
+    if (cloudRes && cloudRes.success) {
+      setProfileSyncStatus({
+        source: 'supabase',
+        lastChecked: new Date().toISOString(),
+        isSyncing: false,
+        error: null
+      });
+    } else {
+      setProfileSyncStatus(prev => ({
+        ...prev,
+        isSyncing: false,
+        error: cloudRes?.error || 'Cloud sync error'
+      }));
+    }
+    return cloudRes;
   };
 
   // Education Actions
@@ -476,6 +605,8 @@ export function PortfolioProvider({ children }) {
         categories,
         skills,
         profile,
+        profileSyncStatus,
+        refreshProfileFromCloud,
         education,
         inquiries,
         addProject,

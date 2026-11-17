@@ -140,6 +140,24 @@ export default function Navbar() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden mt-2 mx-4 p-4 rounded-2xl glass-panel bg-white/95 border border-gold-400/30 shadow-2xl backdrop-blur-2xl animate-in fade-in slide-in-from-top-4 duration-200">
+          {/* Mobile Profile Header Card */}
+          <div className="flex items-center gap-3 p-2.5 mb-2 rounded-xl bg-gradient-to-r from-gold-500/10 via-amber-500/5 to-transparent border border-gold-400/25">
+            <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-gold-400/70 shrink-0 shadow-sm shadow-gold-500/20">
+              <img
+                src={avatarSrc}
+                alt={displayName}
+                className="w-full h-full object-cover object-[center_28%]"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className="block font-stylish font-bold text-sm text-stone-950 truncate">{displayName}</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" title="Available for projects" />
+              </div>
+              <span className="block text-[11px] font-mono text-gold-900 font-semibold truncate">{profile?.title || 'AI & ML DEVELOPER'}</span>
+            </div>
+          </div>
+
           <nav className="flex flex-col gap-1.5">
             {NAV_ITEMS.map((item) => {
               const isActive = activeSection === item.href.substring(1);

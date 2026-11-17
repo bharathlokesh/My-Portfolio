@@ -1,5 +1,6 @@
 import React from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
+import profileImg from '../assets/profile.jpg';
 import {
   Bot,
   BrainCircuit,
@@ -24,6 +25,7 @@ const INTERESTS = [
 
 export default function About() {
   const { profile } = usePortfolio();
+  const avatarSrc = profile?.profileImage || profileImg;
 
   return (
     <section id="about" className="relative pt-8 sm:pt-10 pb-10 sm:pb-12 overflow-hidden border-b border-gold-400/20">
@@ -51,11 +53,26 @@ export default function About() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             
-            {/* Left Column: Bio Narrative */}
-            <div className="lg:col-span-7 space-y-3">
-              <h3 className="text-xl sm:text-2xl font-display font-bold text-stone-900 flex items-center gap-3">
-                <span>{profile.aboutTitle || 'Passionate AI, ML & IoT Explorer'}</span>
-              </h3>
+            {/* Left Column: Bio Narrative with Author Photo */}
+            <div className="lg:col-span-7 space-y-3.5">
+              <div className="flex items-center gap-3.5">
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-gold-400/60 shadow-md shadow-gold-500/15 shrink-0 bg-gold-100">
+                  <img
+                    src={avatarSrc}
+                    alt={profile.name || "Bharath Lokesh"}
+                    className="w-full h-full object-cover object-[center_28%]"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-2xl font-display font-bold text-stone-900 leading-tight">
+                    <span>{profile.aboutTitle || 'Passionate AI, ML & IoT Explorer'}</span>
+                  </h3>
+                  <div className="inline-flex items-center gap-1.5 text-xs text-gold-900 font-mono font-semibold mt-0.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{profile.title || 'AI/ML, IoT & Web Developer'}</span>
+                  </div>
+                </div>
+              </div>
 
               <div className="space-y-2.5 text-stone-700 leading-relaxed text-sm sm:text-base">
                 <p>

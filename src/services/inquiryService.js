@@ -139,7 +139,14 @@ export async function fetchInquiries() {
       .order('created_at', { ascending: false });
 
     if (!error && Array.isArray(data)) {
-      const mapped = data.map(item => ({
+      // Filter out internal system rows (e.g. cloud profile configuration)
+      const userInquiries = data.filter(item => 
+        !item.subject?.startsWith('__') && 
+        !item.email?.endsWith('.internal') &&
+        item.name !== '__SYSTEM_PORTFOLIO_PROFILE__'
+      );
+
+      const mapped = userInquiries.map(item => ({
         id: item.id,
         name: item.name,
         email: item.email,
@@ -194,6 +201,14 @@ export function subscribeToInquiries(callback) {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'inquiries' },
         (payload) => {
+          // Ignore internal system profile sync events
+          if (
+            payload?.new?.subject?.startsWith('__') || 
+            payload?.new?.email?.endsWith('.internal') ||
+            payload?.new?.name === '__SYSTEM_PORTFOLIO_PROFILE__'
+          ) {
+            return;
+          }
           callback(payload);
         }
       )

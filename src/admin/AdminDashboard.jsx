@@ -38,6 +38,7 @@ export default function AdminDashboard() {
     categories,
     skills,
     profile,
+    profileSyncStatus,
     education = [],
     inquiries = [],
     addProject,
@@ -81,6 +82,22 @@ export default function AdminDashboard() {
 
   // Profile Form State
   const [profileForm, setProfileForm] = useState({ ...profile });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  // Keep form synchronized when cloud profile loads or updates
+  useEffect(() => {
+    if (profile) {
+      setProfileForm(p => ({
+        ...profile,
+        // preserve non-empty edits if user is actively typing
+        name: p.name || profile.name || '',
+        title: p.title || profile.title || '',
+        heroBio: p.heroBio || profile.heroBio || '',
+        aboutBio: p.aboutBio || profile.aboutBio || '',
+        profileImage: p.profileImage !== undefined ? p.profileImage : (profile.profileImage || '')
+      }));
+    }
+  }, [profile]);
 
   // Admin Account & Credentials Form State
   const [accountEmail, setAccountEmail] = useState(adminEmail || 'bharathlokesh07@gmail.com');
@@ -333,7 +350,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handle Profile Image Upload (with Canvas compression)
+  // Handle Profile Image Upload (with Canvas compression and instant cloud sync)
   const handleProfileImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -369,9 +386,23 @@ export default function AdminDashboard() {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
-        setProfileForm(p => ({ ...p, profileImage: dataUrl }));
-        showToast('Photo selected! Click "Save Changes" to apply.');
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        const updated = { ...profileForm, profileImage: dataUrl };
+        setProfileForm(updated);
+        
+        // Auto-sync immediately to Supabase Cloud so mobile & live site update without delay
+        setIsSavingProfile(true);
+        updateProfile(updated).then(res => {
+          setIsSavingProfile(false);
+          if (res?.success) {
+            showToast('Profile photo updated & synced live to cloud and mobile!');
+          } else {
+            showToast('Profile photo saved locally! Click Save Identity to retry cloud sync.');
+          }
+        }).catch(() => {
+          setIsSavingProfile(false);
+          showToast('Profile photo saved locally.');
+        });
       };
       img.src = readerEvent.target.result;
     };
@@ -379,10 +410,34 @@ export default function AdminDashboard() {
   };
 
   // Handle Save Profile
-  const handleSaveProfile = (e) => {
-    e.preventDefault();
-    updateProfile(profileForm);
-    showToast('Profile and identity updated!');
+  const handleSaveProfile = async (e) => {
+    if (e) e.preventDefault();
+    setIsSavingProfile(true);
+    try {
+      const res = await updateProfile(profileForm);
+      if (res?.success) {
+        showToast('Profile & photo updated and synced live across all devices & mobile!');
+      } else {
+        showToast('Saved locally. Cloud sync: ' + (res?.error || 'pending'));
+      }
+    } catch {
+      showToast('Profile updated locally.');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  // Handle Reset Profile Photo to Default
+  const handleResetProfilePhoto = async () => {
+    const updated = { ...profileForm, profileImage: '' };
+    setProfileForm(updated);
+    setIsSavingProfile(true);
+    try {
+      await updateProfile(updated);
+      showToast('Reverted to default portfolio photo (synced to cloud & live).');
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   // Handle Update Admin Credentials (Gmail & Password)
@@ -717,9 +772,10 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     type="submit"
-                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                    disabled={isSavingProfile}
+                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm shadow-sm cursor-pointer disabled:opacity-50"
                   >
-                    Save Identity
+                    {isSavingProfile ? 'Syncing...' : 'Save Identity'}
                   </button>
                 </div>
 
@@ -745,12 +801,24 @@ export default function AdminDashboard() {
                           Profile Photo
                         </h3>
                         <p className="text-xs text-stone-500 font-sans mb-1.5">
-                          Active across your portfolio navbar and admin console.
+                          Synchronized live across all devices, mobile browsers, and portfolio pages.
                         </p>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-sans font-semibold">
-                          <Check className="w-3 h-3 text-emerald-600" />
-                          <span>{profileForm.profileImage ? 'Custom Photo Active' : 'Default Photo Active (profile.jpg)'}</span>
-                        </span>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-sans font-semibold">
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            <span>{profileForm.profileImage ? 'Custom Photo Active' : 'Default Photo Active (profile.jpg)'}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-500/10 border border-gold-400/35 text-gold-950 text-[10px] font-sans font-semibold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>
+                              {profileSyncStatus?.isSyncing 
+                                ? 'Syncing...' 
+                                : profileSyncStatus?.lastChecked 
+                                ? 'Cloud Synced (Live & Mobile)' 
+                                : 'Live Cloud Sync'}
+                            </span>
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -769,10 +837,7 @@ export default function AdminDashboard() {
                       {profileForm.profileImage && (
                         <button
                           type="button"
-                          onClick={() => {
-                            setProfileForm(p => ({ ...p, profileImage: '' }));
-                            showToast('Reverted to default portfolio photo! Click Save to apply.');
-                          }}
+                          onClick={handleResetProfilePhoto}
                           className="px-3 py-2 rounded-xl border border-stone-200 hover:bg-stone-50 text-xs font-sans text-stone-600 transition-all cursor-pointer shadow-xs"
                         >
                           Reset to Default
@@ -850,9 +915,10 @@ export default function AdminDashboard() {
 
                 <button
                   type="submit"
-                  className="btn-gold w-full py-2.5 sm:py-3 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 cursor-pointer"
+                  disabled={isSavingProfile}
+                  className="btn-gold w-full py-2.5 sm:py-3 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 cursor-pointer disabled:opacity-50"
                 >
-                  Save Hero & Identity
+                  {isSavingProfile ? 'Syncing to Live Portfolio & Cloud...' : 'Save Hero & Identity'}
                 </button>
               </form>
             )}
@@ -1264,9 +1330,10 @@ export default function AdminDashboard() {
 
                   <button
                     type="submit"
-                    className="btn-gold px-5 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm font-sans uppercase tracking-wider shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
+                    disabled={isSavingProfile}
+                    className="btn-gold px-5 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm font-sans uppercase tracking-wider shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0 disabled:opacity-50"
                   >
-                    Save Changes
+                    {isSavingProfile ? 'Syncing...' : 'Save Changes'}
                   </button>
                 </div>
 
@@ -1429,9 +1496,10 @@ export default function AdminDashboard() {
                 <div className="pt-1">
                   <button
                     type="submit"
-                    className="w-full btn-gold py-2.5 sm:py-3 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 active:scale-[0.99] cursor-pointer"
+                    disabled={isSavingProfile}
+                    className="w-full btn-gold py-2.5 sm:py-3 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 active:scale-[0.99] cursor-pointer disabled:opacity-50"
                   >
-                    Save Contact Details & Update Portfolio
+                    {isSavingProfile ? 'Syncing to Live Portfolio & Cloud...' : 'Save Contact Details & Update Portfolio'}
                   </button>
                 </div>
               </form>
@@ -1653,9 +1721,10 @@ export default function AdminDashboard() {
 
                   <button
                     type="submit"
-                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs font-sans uppercase tracking-wider shadow-sm cursor-pointer"
+                    disabled={isSavingProfile}
+                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs font-sans uppercase tracking-wider shadow-sm cursor-pointer disabled:opacity-50"
                   >
-                    Save Contact Channels
+                    {isSavingProfile ? 'Syncing...' : 'Save Contact Channels'}
                   </button>
                 </form>
               </div>
