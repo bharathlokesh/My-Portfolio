@@ -11,6 +11,55 @@ import devImg from '../assets/developer_3d_transparent.png';
 
 const GREETING_TEXT = "Hello! I am Bharath. Welcome to my portfolio! Check out my work in Machine Learning, Computer Vision, and connected IoT systems. Dive in and Explore!";
 
+// Select a crisp, young, professional male English voice
+const getYoungMaleVoice = (voices) => {
+  if (!voices || voices.length === 0) return null;
+
+  // Ranked high-quality young & professional male voice identifiers
+  const preferredMalePatterns = [
+    /microsoft guy online/i,
+    /microsoft guy/i,
+    /microsoft christopher online/i,
+    /microsoft christopher/i,
+    /microsoft ryan online/i,
+    /microsoft ryan/i,
+    /microsoft andrew/i,
+    /microsoft brian/i,
+    /google uk english male/i,
+    /google us english male/i,
+    /google.*male/i,
+    /daniel/i,
+    /oliver/i,
+    /arthur/i,
+    /evan/i,
+    /alex/i,
+    /prabhat/i,
+    /rishi/i,
+    /ravi/i,
+    /microsoft david/i,
+    /microsoft mark/i,
+    /microsoft james/i,
+    /male/i
+  ];
+
+  // Specific female voice names to strictly exclude
+  const femaleVoiceFilter = /female|woman|girl|samantha|jenny|zira|aria|victoria|karen|fiona|moira|tessa|susan|hazel|catherine|heera|neerja|sophia|emma|ava/i;
+
+  const englishVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+
+  // 1. Try matching top preferred young male voices
+  for (const pattern of preferredMalePatterns) {
+    const matched = englishVoices.find(v => pattern.test(v.name) && !femaleVoiceFilter.test(v.name));
+    if (matched) return matched;
+  }
+
+  // 2. Fallback: any English voice that is not female
+  const nonFemale = englishVoices.find(v => !femaleVoiceFilter.test(v.name));
+  if (nonFemale) return nonFemale;
+
+  return englishVoices[0] || voices[0] || null;
+};
+
 export default function HeroVisual() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
@@ -126,14 +175,17 @@ export default function HeroVisual() {
 
     const utterance = new SpeechSynthesisUtterance(GREETING_TEXT);
     const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v =>
-      v.lang.startsWith('en') &&
-      (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Jenny') || v.name.includes('David'))
-    );
-    if (preferredVoice) utterance.voice = preferredVoice;
+    const preferredVoice = getYoungMaleVoice(voices);
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
 
-    utterance.rate = 0.98;
-    utterance.pitch = 1.05;
+    // Young adult professional male vocal tuning:
+    // Pacing: 1.0 (clear, confident cadence)
+    // Pitch: 0.98 (natural, warm, resonant young male tone - not high-pitched)
+    utterance.rate = 1.0;
+    utterance.pitch = 0.98;
+    utterance.volume = 1.0;
 
     // Track speech boundary to reveal words synchronized with speech
     let boundaryWorked = false;
@@ -237,8 +289,30 @@ export default function HeroVisual() {
     }
   };
 
-  // Clean up timer and voice speech on unmount
+  // Preload voices and clean up timer / voice speech on unmount
   useEffect(() => {
+    // Eagerly pre-populate voices list so the first tap has all male voices ready
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      const handleVoicesChanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+      window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+
+      return () => {
+        window.speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+        if (typingTimerRef.current) {
+          clearTimeout(typingTimerRef.current);
+          typingTimerRef.current = null;
+        }
+        if (smoothStreamTimerRef.current) {
+          clearInterval(smoothStreamTimerRef.current);
+          smoothStreamTimerRef.current = null;
+        }
+        window.speechSynthesis.cancel();
+      };
+    }
+
     return () => {
       if (typingTimerRef.current) {
         clearTimeout(typingTimerRef.current);
@@ -248,7 +322,6 @@ export default function HeroVisual() {
         clearInterval(smoothStreamTimerRef.current);
         smoothStreamTimerRef.current = null;
       }
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     };
   }, []);
 

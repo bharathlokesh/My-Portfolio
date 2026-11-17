@@ -487,7 +487,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="admin-scope min-h-screen bg-warmwhite-200 text-stone-900 selection:bg-gold-500/20 selection:text-gold-900 font-sans pb-16 relative">
+    <div className="admin-scope min-h-screen md:h-screen md:overflow-hidden bg-warmwhite-200 text-stone-900 selection:bg-gold-500/20 selection:text-gold-900 font-sans relative flex flex-col">
       
       {/* Background Subtle Gold Grid Overlay - GPU isolated */}
       <div className="fixed inset-0 tech-grid-pattern opacity-40 pointer-events-none z-0 transform-gpu will-change-transform" />
@@ -504,7 +504,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Top Header: Brand on left, Database + Live Portfolio + Separate Logout Icon on right */}
-      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-gold-400/25 px-4 sm:px-8 py-2.5 sm:py-3 flex items-center justify-between shadow-xs">
+      <header className="shrink-0 bg-white/85 backdrop-blur-md border-b border-gold-400/25 px-4 sm:px-8 py-2.5 sm:py-3 flex items-center justify-between shadow-xs z-30">
         <div className="flex items-center gap-3">
           {/* Avatar / Profile photo in Header */}
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden border border-gold-400/60 shadow-xs shrink-0 bg-gold-100 flex items-center justify-center">
@@ -558,13 +558,13 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Layout: Left Sidebar Navigation + Right Content View */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-start">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-0 relative z-10 md:overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-start md:h-full">
           
           {/* ======================================================== */}
           {/* LEFT SIDEBAR NAVIGATION (Matching Reference Image 1) */}
           {/* ======================================================== */}
-          <aside className="md:col-span-4 lg:col-span-3 pb-4 md:pb-8 md:pr-4 lg:pr-6 border-b md:border-b-0 md:border-r border-gold-400/30">
+          <aside className="md:col-span-4 lg:col-span-3 pb-4 md:pb-8 md:pr-4 lg:pr-6 border-b md:border-b-0 md:border-r border-gold-400/30 md:h-full md:overflow-y-auto">
             <nav className="space-y-1 p-1 bg-transparent">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -591,7 +591,7 @@ export default function AdminDashboard() {
           {/* ======================================================== */}
           {/* RIGHT CONTENT PANEL (Tabs) */}
           {/* ======================================================== */}
-          <div className="md:col-span-8 lg:col-span-9 md:pl-2 lg:pl-3">
+          <div className="md:col-span-8 lg:col-span-9 md:pl-2 lg:pl-3 md:h-full md:overflow-y-auto md:pr-2 pb-24">
 
             {/* TAB 1: OVERVIEW (Matching exact layout from user image) */}
             {activeTab === 'overview' && (
