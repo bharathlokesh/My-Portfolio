@@ -9,7 +9,8 @@ import {
   Copy,
   Check,
   Phone,
-  MapPin
+  MapPin,
+  RotateCcw
 } from 'lucide-react';
 import { Github, Linkedin, Instagram } from './Icons';
 
@@ -62,7 +63,6 @@ export default function Contact() {
       }
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setStatus('idle'), 6000);
     } catch (err) {
       console.warn('Inquiry submission fallback:', err);
       if (addInquiry) {
@@ -75,8 +75,12 @@ export default function Contact() {
       }
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setStatus('idle'), 6000);
     }
+  };
+
+  const handleResetForm = () => {
+    setFormData({ name: '', email: '', message: '' });
+    setStatus('idle');
   };
 
   const handleCopyEmail = () => {
@@ -258,16 +262,28 @@ export default function Contact() {
               </h3>
 
               {status === 'success' ? (
-                <div className="p-8 rounded-2xl bg-gold-500/15 border border-gold-400/40 text-center animate-in zoom-in-95 duration-300">
-                  <div className="w-12 h-12 rounded-full bg-gold-500/20 text-gold-800 flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle2 className="w-6 h-6" />
+                <div className="p-8 sm:p-10 rounded-2xl bg-gold-500/10 border border-gold-400/40 text-center animate-in zoom-in-95 duration-300 space-y-4">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-400/30 flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                   </div>
-                  <h4 className="text-lg font-bold text-stone-900 mb-1">
-                    Message Transmitted Successfully!
-                  </h4>
-                  <p className="text-xs text-stone-700 max-w-sm mx-auto font-normal">
-                    Thank you for reaching out. Bharath Lokesh will review your message and connect back promptly.
-                  </p>
+                  <div>
+                    <h4 className="text-xl font-display font-bold text-stone-900 mb-1.5">
+                      Message Transmitted Successfully!
+                    </h4>
+                    <p className="text-xs sm:text-sm text-stone-700 max-w-sm mx-auto font-normal leading-relaxed">
+                      Thank you for reaching out! Bharath Lokesh has received your inquiry and will connect back promptly.
+                    </p>
+                  </div>
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={handleResetForm}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-xs font-bold text-stone-900 bg-white border border-gold-400/50 hover:bg-gold-50 hover:border-gold-500 transition-all shadow-xs cursor-pointer active:scale-98"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-gold-700" />
+                      <span>Send Another Response</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">

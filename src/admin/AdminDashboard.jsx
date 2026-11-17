@@ -8,6 +8,7 @@ import {
   User,
   Layers,
   FolderGit2,
+  GitFork,
   GraduationCap,
   Mail,
   Settings,
@@ -26,8 +27,6 @@ import {
   RotateCcw,
   Download,
   Upload,
-  Sparkles,
-  ShieldCheck,
   RefreshCw,
   Phone,
   MapPin
@@ -504,7 +503,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Top Header: Brand on left, Live Portfolio + Separate Logout Icon on right */}
+      {/* Top Header: Brand on left, Database + Live Portfolio + Separate Logout Icon on right */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-gold-400/25 px-4 sm:px-8 py-2.5 sm:py-3 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
           {/* Avatar / Profile photo in Header */}
@@ -516,14 +515,23 @@ export default function AdminDashboard() {
             />
           </div>
           <div>
-            <span className="font-extrabold text-sm sm:text-base tracking-tight text-stone-900 font-display block">
+            <span className="font-extrabold text-sm sm:text-base tracking-tight text-stone-900 font-display block leading-tight">
               {profile.name || 'BHARATH LOKESH'}
+            </span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 font-semibold block">
+              Studio Admin Control
             </span>
           </div>
         </div>
 
-        {/* Header Right Actions: Live Portfolio Button + Separate Logout Icon Button */}
+        {/* Header Right Actions: Connected Database Pill + Live Portfolio Button + Separate Logout Icon Button */}
         <div className="flex items-center gap-2">
+          {/* Database Connected Status Pill */}
+          <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl border border-emerald-300 bg-emerald-50/90 text-emerald-800 text-xs font-mono font-medium shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="font-semibold text-[11px] sm:text-xs">Supabase Connected</span>
+          </div>
+
           {/* Live Portfolio Button */}
           <Link
             to="/"
@@ -550,14 +558,14 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Layout: Left Sidebar Navigation + Right Content View */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-start">
           
           {/* ======================================================== */}
           {/* LEFT SIDEBAR NAVIGATION (Matching Reference Image 1) */}
           {/* ======================================================== */}
-          <aside className="md:col-span-4 lg:col-span-3">
-            <nav className="space-y-1.5 p-2 bg-transparent">
+          <aside className="md:col-span-4 lg:col-span-3 pb-4 md:pb-8 md:pr-4 lg:pr-6 border-b md:border-b-0 md:border-r border-gold-400/30">
+            <nav className="space-y-1 p-1 bg-transparent">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -568,8 +576,8 @@ export default function AdminDashboard() {
                     type="button"
                     className={`w-full text-left transition-all duration-150 flex items-center gap-3 cursor-pointer ${
                       isActive
-                        ? 'bg-white rounded-2xl shadow-sm border border-gold-400/25 text-[#735118] font-bold px-4 py-3'
-                        : 'text-stone-700 hover:text-stone-950 hover:bg-white/60 rounded-xl px-4 py-2.5 font-medium text-sm'
+                        ? 'bg-white rounded-xl shadow-xs border border-gold-400/25 text-[#735118] font-bold px-3.5 py-2.5'
+                        : 'text-stone-700 hover:text-stone-950 hover:bg-white/60 rounded-lg px-3.5 py-2 font-medium text-sm'
                     }`}
                   >
                     <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#8c6523]' : 'text-stone-500'}`} />
@@ -583,278 +591,112 @@ export default function AdminDashboard() {
           {/* ======================================================== */}
           {/* RIGHT CONTENT PANEL (Tabs) */}
           {/* ======================================================== */}
-          <div className="md:col-span-8 lg:col-span-9">
+          <div className="md:col-span-8 lg:col-span-9 md:pl-2 lg:pl-3">
 
-            {/* TAB 1: OVERVIEW (The Admin Home Page) */}
+            {/* TAB 1: OVERVIEW (Matching exact layout from user image) */}
             {activeTab === 'overview' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="space-y-5 animate-in fade-in duration-200">
                 
-                {/* Hero Greeting Card */}
-                <div className="p-6 sm:p-8 rounded-3xl bg-white/95 border border-gold-400/30 shadow-gold-card relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-radial from-gold-300/20 via-amber-200/5 to-transparent blur-3xl pointer-events-none" />
-                  
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-                    <div>
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-3">
-                        <Sparkles className="w-3.5 h-3.5 text-gold-600" />
-                        <span>Admin Dashboard Active</span>
-                      </div>
-                      <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-stone-900 tracking-tight">
-                        Welcome back, {profile.name ? profile.name.split(' ')[0] : 'Bharath'}!
-                      </h1>
-                      <p className="text-sm text-stone-600 mt-1 font-normal max-w-xl">
-                        Here is the live control center for your portfolio. Manage engineering projects, skills matrix, education, and credentials with instant sync.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => handleOpenAddSkillModal('programming')}
-                        type="button"
-                        className="px-4 py-2 rounded-xl bg-white/90 border border-gold-400/40 hover:bg-gold-50 text-stone-900 font-bold text-xs font-mono flex items-center gap-1.5 shadow-xs active:scale-98 cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5 text-gold-700 stroke-[3]" />
-                        <span>Add Skill</span>
-                      </button>
-                      <button
-                        onClick={handleOpenAddProject}
-                        type="button"
-                        className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs font-mono flex items-center gap-1.5 shadow-sm active:scale-98 cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                        <span>Add Project</span>
-                      </button>
-                    </div>
-                  </div>
+                {/* Header Title & Subtitle */}
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-display font-extrabold text-stone-900 tracking-tight">
+                    Portfolio Overview & Metrics
+                  </h1>
+                  <p className="text-xs sm:text-sm text-stone-600 mt-1 font-normal">
+                    Live state of your architectural portfolio presentation and incoming commissions.
+                  </p>
                 </div>
 
-                {/* KPI Metrics Summary (4 Cards) */}
+                {/* 4 Primary Overview Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Card 1: Projects */}
+                  {/* Card 1: Published Projects */}
                   <div
                     onClick={() => setActiveTab('projects')}
-                    className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card hover:border-gold-500/60 transition-all cursor-pointer group"
+                    className="p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card hover:border-gold-500/60 transition-all cursor-pointer group"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold">Projects</span>
-                      <div className="p-2 rounded-xl bg-gold-500/10 text-gold-700 group-hover:scale-110 transition-transform">
-                        <FolderGit2 className="w-4 h-4" />
-                      </div>
+                    <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold block mb-3">
+                      PUBLISHED PROJECTS
+                    </span>
+                    <div className="text-3xl sm:text-4xl font-display font-extrabold text-stone-900">
+                      {projects.length}
                     </div>
-                    <div className="text-3xl font-display font-extrabold text-stone-900">{projects.length}</div>
-                    <p className="text-xs text-stone-500 mt-1 font-mono">Live engineering builds</p>
                   </div>
 
-                  {/* Card 2: Skills */}
+                  {/* Card 2: Technical Capabilities */}
                   <div
                     onClick={() => setActiveTab('skills')}
-                    className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card hover:border-gold-500/60 transition-all cursor-pointer group"
+                    className="p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card hover:border-gold-500/60 transition-all cursor-pointer group"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold">Skills Matrix</span>
-                      <div className="p-2 rounded-xl bg-gold-500/10 text-gold-700 group-hover:scale-110 transition-transform">
-                        <Layers className="w-4 h-4" />
-                      </div>
+                    <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold block mb-3">
+                      TECHNICAL CAPABILITIES
+                    </span>
+                    <div className="text-3xl sm:text-4xl font-display font-extrabold text-stone-900">
+                      {totalSkillsCount}
                     </div>
-                    <div className="text-3xl font-display font-extrabold text-stone-900">{totalSkillsCount}</div>
-                    <p className="text-xs text-stone-500 mt-1 font-mono">Across 5 domains</p>
                   </div>
 
-                  {/* Card 3: Education */}
-                  <div
-                    onClick={() => setActiveTab('education')}
-                    className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card hover:border-gold-500/60 transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold">Education</span>
-                      <div className="p-2 rounded-xl bg-gold-500/10 text-gold-700 group-hover:scale-110 transition-transform">
-                        <GraduationCap className="w-4 h-4" />
-                      </div>
-                    </div>
-                    <div className="text-3xl font-display font-extrabold text-stone-900">{education.length}</div>
-                    <p className="text-xs text-stone-500 mt-1 font-mono">Diploma AI/ML & SSLC</p>
-                  </div>
-
-                  {/* Card 4: Inquiries */}
+                  {/* Card 3: Inbound Inquiries */}
                   <div
                     onClick={() => setActiveTab('inquiries')}
-                    className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card hover:border-gold-500/60 transition-all cursor-pointer group"
+                    className="p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card hover:border-gold-500/60 transition-all cursor-pointer group"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold">Inquiries</span>
-                      <div className="p-2 rounded-xl bg-gold-500/10 text-gold-700 group-hover:scale-110 transition-transform">
-                        <Mail className="w-4 h-4" />
-                      </div>
+                    <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold block mb-3">
+                      INBOUND INQUIRIES
+                    </span>
+                    <div className="text-3xl sm:text-4xl font-display font-extrabold text-stone-900">
+                      {inquiries.length}
                     </div>
-                    <div className="text-3xl font-display font-extrabold text-stone-900">{inquiries.length}</div>
-                    <p className="text-xs text-stone-500 mt-1 font-mono">{unreadInquiriesCount} unread message{unreadInquiriesCount === 1 ? '' : 's'}</p>
+                  </div>
+
+                  {/* Card 4: Database Mode */}
+                  <div className="p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+                    <span className="text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold block mb-3">
+                      DATABASE MODE
+                    </span>
+                    <div className="text-lg sm:text-xl font-display font-extrabold text-gold-900 leading-tight">
+                      Supabase<br />PostgreSQL
+                    </div>
                   </div>
                 </div>
 
-                {/* Quick Action Hub & System Status */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left: Quick Actions */}
-                  <div className="lg:col-span-2 p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
-                    <h3 className="text-base font-display font-bold text-stone-900 mb-4 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-gold-700" />
-                      <span>Quick Actions</span>
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <button
-                        onClick={handleOpenAddProject}
-                        type="button"
-                        className="p-3.5 rounded-xl border border-gold-400/30 hover:border-gold-500 hover:bg-gold-50/70 text-left transition-all cursor-pointer group bg-warmwhite-50"
-                      >
-                        <div className="font-bold text-xs text-stone-900 group-hover:text-gold-800 flex items-center gap-2">
-                          <Plus className="w-3.5 h-3.5 text-gold-600" />
-                          <span>Add New Project</span>
-                        </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Publish an edge or AI application</p>
-                      </button>
-
-                      <button
-                        onClick={() => setActiveTab('hero')}
-                        type="button"
-                        className="p-3.5 rounded-xl border border-gold-400/30 hover:border-gold-500 hover:bg-gold-50/70 text-left transition-all cursor-pointer group bg-warmwhite-50"
-                      >
-                        <div className="font-bold text-xs text-stone-900 group-hover:text-gold-800 flex items-center gap-2">
-                          <Camera className="w-3.5 h-3.5 text-gold-600" />
-                          <span>Update Profile & Photo</span>
-                        </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Change bio, titles or avatar picture</p>
-                      </button>
-
-                      <button
-                        onClick={() => handleOpenAddSkillModal('ai-ml')}
-                        type="button"
-                        className="p-3.5 rounded-xl border border-gold-400/30 hover:border-gold-500 hover:bg-gold-50/70 text-left transition-all cursor-pointer group bg-warmwhite-50"
-                      >
-                        <div className="font-bold text-xs text-stone-900 group-hover:text-gold-800 flex items-center gap-2">
-                          <Plus className="w-3.5 h-3.5 text-gold-600 stroke-[3]" />
-                          <span>+ Add Technical Skill</span>
-                        </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Add competency with instant live preview</p>
-                      </button>
-
-                      <button
-                        onClick={handleOpenAddEducation}
-                        type="button"
-                        className="p-3.5 rounded-xl border border-gold-400/30 hover:border-gold-500 hover:bg-gold-50/70 text-left transition-all cursor-pointer group bg-warmwhite-50"
-                      >
-                        <div className="font-bold text-xs text-stone-900 group-hover:text-gold-800 flex items-center gap-2">
-                          <GraduationCap className="w-3.5 h-3.5 text-gold-600" />
-                          <span>+ Add Education Record</span>
-                        </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Add degree, diploma, or schooling</p>
-                      </button>
-
-                      <button
-                        onClick={() => setActiveTab('contact')}
-                        type="button"
-                        className="p-3.5 rounded-xl border border-gold-400/30 hover:border-gold-500 hover:bg-gold-50/70 text-left transition-all cursor-pointer group bg-warmwhite-50"
-                      >
-                        <div className="font-bold text-xs text-stone-900 group-hover:text-gold-800 flex items-center gap-2">
-                          <Phone className="w-3.5 h-3.5 text-gold-600" />
-                          <span>Edit Contact Details</span>
-                        </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Phone, email, location & socials</p>
-                      </button>
-
-                      <button
-                        onClick={() => setActiveTab('settings')}
-                        type="button"
-                        className="p-3.5 rounded-xl border border-gold-400/30 hover:border-gold-500 hover:bg-gold-50/70 text-left transition-all cursor-pointer group bg-warmwhite-50"
-                      >
-                        <div className="font-bold text-xs text-stone-900 group-hover:text-gold-800 flex items-center gap-2">
-                          <Settings className="w-3.5 h-3.5 text-gold-600" />
-                          <span>Security & Backup</span>
-                        </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Download backup or change password</p>
-                      </button>
-                    </div>
+                {/* Quick Commands Card */}
+                <div className="p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
+                  <div>
+                    <h2 className="text-base font-display font-bold text-stone-900">
+                      Quick Commands
+                    </h2>
+                    <p className="text-xs sm:text-sm text-stone-600 font-normal mt-1">
+                      Select a section from the left sidebar to update project showcases, fine-tune skill competencies, or review transmission logs from visitors.
+                    </p>
                   </div>
 
-                  {/* Right: System & Security Status */}
-                  <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-base font-display font-bold text-stone-900 mb-3 flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                        <span>System Health</span>
-                      </h3>
-                      <div className="space-y-3 text-xs font-mono">
-                        <div>
-                          <span className="text-stone-400 block">Logged In As:</span>
-                          <span className="font-bold text-stone-800 truncate block">{adminEmail}</span>
-                        </div>
-                        <div>
-                          <span className="text-stone-400 block">Database / Engine:</span>
-                          <span className="font-bold text-emerald-800 flex items-center gap-1.5 mt-0.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            Supabase Cloud DB (Connected)
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-stone-400 block">Live URL:</span>
-                          <span className="font-bold text-gold-800 truncate block">portfolio.bharatthlokesh.xyz</span>
-                        </div>
-                      </div>
-                    </div>
-
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
                     <button
-                      onClick={handleExportBackup}
+                      onClick={() => setActiveTab('skills')}
                       type="button"
-                      className="mt-4 w-full py-2 px-3 rounded-xl border border-gold-400/30 hover:bg-gold-50 text-[11px] font-mono text-stone-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-white border border-gold-400/35 hover:border-gold-500 hover:bg-gold-50/80 text-xs font-mono font-medium text-stone-800 flex items-center gap-2 shadow-xs transition-all cursor-pointer active:scale-98"
                     >
-                      <Download className="w-3.5 h-3.5 text-gold-700" />
-                      <span>Download JSON Backup</span>
+                      <Layers className="w-3.5 h-3.5 text-stone-700" />
+                      <span>Edit Skills Matrix</span>
                     </button>
-                  </div>
-                </div>
 
-                {/* Recent Projects Preview */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
-                  <div className="flex items-center justify-between pb-4 mb-4 border-b border-gold-400/20">
-                    <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
-                      <FolderGit2 className="w-4 h-4 text-gold-700" />
-                      <span>Featured Projects ({projects.length})</span>
-                    </h3>
                     <button
                       onClick={() => setActiveTab('projects')}
                       type="button"
-                      className="text-xs font-mono text-gold-800 hover:text-gold-950 font-bold flex items-center gap-1 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-white border border-gold-400/35 hover:border-gold-500 hover:bg-gold-50/80 text-xs font-mono font-medium text-stone-800 flex items-center gap-2 shadow-xs transition-all cursor-pointer active:scale-98"
                     >
-                      <span>View All</span>
-                      <ArrowUpRight className="w-3 h-3" />
+                      <GitFork className="w-3.5 h-3.5 text-stone-700" />
+                      <span>Manage Projects</span>
                     </button>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {projects.slice(0, 4).map((proj) => (
-                      <div
-                        key={proj.id}
-                        className="p-4 rounded-xl border border-gold-400/25 bg-warmwhite-50 flex flex-col justify-between"
-                      >
-                        <div>
-                          <span className="px-2 py-0.5 rounded bg-gold-500/10 text-[10px] font-mono text-gold-900 font-bold">
-                            {proj.category}
-                          </span>
-                          <h4 className="font-bold text-stone-900 text-sm mt-2">{proj.title}</h4>
-                          <p className="text-xs text-stone-500 font-mono mt-0.5 line-clamp-1">{proj.tagline}</p>
-                        </div>
-                        <div className="pt-3 mt-3 border-t border-gold-400/15 flex items-center justify-between">
-                          <span className="text-[11px] font-mono text-stone-500">{proj.status}</span>
-                          <button
-                            onClick={() => {
-                              handleOpenEditProject(proj);
-                            }}
-                            type="button"
-                            className="text-xs font-mono text-gold-800 hover:text-gold-950 font-bold cursor-pointer"
-                          >
-                            Edit →
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                    <button
+                      onClick={() => setActiveTab('inquiries')}
+                      type="button"
+                      className="px-4 py-2 rounded-xl bg-white border border-gold-400/35 hover:border-gold-500 hover:bg-gold-50/80 text-xs font-mono font-medium text-stone-800 flex items-center gap-2 shadow-xs transition-all cursor-pointer active:scale-98"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-stone-700" />
+                      <span>View Inquiries ({unreadInquiriesCount} unread)</span>
+                    </button>
                   </div>
                 </div>
 
@@ -863,10 +705,10 @@ export default function AdminDashboard() {
 
             {/* TAB 2: HERO & IDENTITY */}
             {activeTab === 'hero' && (
-              <form onSubmit={handleSaveProfile} className="space-y-6 animate-in fade-in duration-200">
-                <div className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card flex items-center justify-between">
+              <form onSubmit={handleSaveProfile} className="space-y-4 animate-in fade-in duration-200">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-display font-bold text-stone-900 mb-0.5">
+                    <h2 className="text-base sm:text-lg font-display font-bold text-stone-900 mb-0.5">
                       Hero & Personal Identity
                     </h2>
                     <p className="text-xs text-stone-600 font-mono">
@@ -875,46 +717,46 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     type="submit"
-                    className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
                   >
                     Save Identity
                   </button>
                 </div>
 
                 {/* Profile Photo Uploader Card */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                    <div className="flex items-center gap-5">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
                       <div className="relative group shrink-0">
-                        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-gold-400/60 shadow-lg shadow-gold-500/15 bg-gold-100 flex items-center justify-center">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-3 border-gold-400/60 shadow-md shadow-gold-500/15 bg-gold-100 flex items-center justify-center">
                           <img
                             src={activeAvatar}
                             alt={profileForm.name || "Profile Photo"}
                             className="w-full h-full object-cover object-[center_28%]"
                           />
                         </div>
-                        <div className="absolute bottom-0 right-0 p-2 rounded-full bg-gradient-to-r from-gold-400 to-amber-500 text-stone-950 border-2 border-white shadow-md">
-                          <Camera className="w-4 h-4" />
+                        <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-gradient-to-r from-gold-400 to-amber-500 text-stone-950 border-2 border-white shadow-md">
+                          <Camera className="w-3.5 h-3.5" />
                         </div>
                       </div>
 
                       <div>
-                        <h3 className="text-base font-display font-bold text-stone-900 mb-0.5">
+                        <h3 className="text-sm sm:text-base font-display font-bold text-stone-900 mb-0.5">
                           Profile Photo
                         </h3>
-                        <p className="text-xs text-stone-500 font-mono mb-2">
+                        <p className="text-xs text-stone-500 font-mono mb-1.5">
                           Active across your portfolio navbar and admin console.
                         </p>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-mono font-semibold">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-mono font-semibold">
                           <Check className="w-3 h-3 text-emerald-600" />
                           <span>{profileForm.profileImage ? 'Custom Photo Active' : 'Default Photo Active (profile.jpg)'}</span>
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <label className="btn-gold px-4 py-2.5 rounded-xl text-stone-950 font-bold text-xs font-mono flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-98">
-                        <UploadCloud className="w-4 h-4" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="btn-gold px-3.5 py-2 rounded-xl text-stone-950 font-bold text-xs font-mono flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-98">
+                        <UploadCloud className="w-3.5 h-3.5" />
                         <span>Upload New Photo</span>
                         <input
                           type="file"
@@ -931,7 +773,7 @@ export default function AdminDashboard() {
                             setProfileForm(p => ({ ...p, profileImage: '' }));
                             showToast('Reverted to default portfolio photo! Click Save to apply.');
                           }}
-                          className="px-3.5 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-xs font-mono text-stone-600 transition-all cursor-pointer shadow-xs"
+                          className="px-3 py-2 rounded-xl border border-stone-200 hover:bg-stone-50 text-xs font-mono text-stone-600 transition-all cursor-pointer shadow-xs"
                         >
                           Reset to Default
                         </button>
@@ -939,8 +781,8 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  <div className="mt-5 pt-4 border-t border-gold-400/20">
-                    <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                  <div className="mt-4 pt-3 border-t border-gold-400/20">
+                    <label className="block text-[11px] font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                       Or Paste External Image URL
                     </label>
                     <input
@@ -948,67 +790,67 @@ export default function AdminDashboard() {
                       value={profileForm.profileImage || ''}
                       onChange={(e) => setProfileForm(p => ({ ...p, profileImage: e.target.value }))}
                       placeholder="https://example.com/my-photo.jpg (or upload file above)"
-                      className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                      className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                     />
                   </div>
                 </div>
 
                 {/* Identity Form Details */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
                         Full Name (Hero Display)
                       </label>
                       <input
                         type="text"
                         value={profileForm.name}
                         onChange={(e) => setProfileForm(p => ({ ...p, name: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
                         Professional Title
                       </label>
                       <input
                         type="text"
                         value={profileForm.title}
                         onChange={(e) => setProfileForm(p => ({ ...p, title: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
+                    <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
                       Hero Short Tagline Bio
                     </label>
                     <textarea
                       rows={2}
                       value={profileForm.heroBio}
                       onChange={(e) => setProfileForm(p => ({ ...p, heroBio: e.target.value }))}
-                      className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
+                      className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
+                    <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
                       About Section Detailed Bio Narrative
                     </label>
                     <textarea
                       rows={3}
                       value={profileForm.aboutBio}
                       onChange={(e) => setProfileForm(p => ({ ...p, aboutBio: e.target.value }))}
-                      className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
+                      className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="btn-gold w-full py-3.5 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 cursor-pointer"
+                  className="btn-gold w-full py-2.5 sm:py-3 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 cursor-pointer"
                 >
                   Save Hero & Identity
                 </button>
@@ -1017,18 +859,18 @@ export default function AdminDashboard() {
 
             {/* TAB 3: SKILLS MATRIX */}
             {activeTab === 'skills' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="space-y-4 animate-in fade-in duration-200">
                 {/* Prominent Header Banner with + Add Technical Skill Button */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
                   <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-1.5">
                       <Layers className="w-3.5 h-3.5 text-gold-600" />
                       <span>Skills Matrix Active</span>
                     </div>
                     <h2 className="text-xl sm:text-2xl font-display font-extrabold text-stone-900 tracking-tight">
                       Technical Skills Matrix ({totalSkillsCount})
                     </h2>
-                    <p className="text-xs text-stone-600 font-mono mt-1">
+                    <p className="text-xs text-stone-600 font-mono mt-0.5">
                       Manage technical competencies and specializations across your {skills.length} engineering domains.
                     </p>
                   </div>
@@ -1036,7 +878,7 @@ export default function AdminDashboard() {
                   <button
                     onClick={() => handleOpenAddSkillModal('programming')}
                     type="button"
-                    className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
+                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
                   >
                     <Plus className="w-4 h-4 stroke-[3]" />
                     <span>+ Add Technical Skill</span>
@@ -1044,32 +886,32 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Domain Cards Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-4">
                   {skills.map((cat) => (
                     <div
                       key={cat.id}
-                      className="p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card flex flex-col justify-between min-w-0"
+                      className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card flex flex-col justify-between min-w-0"
                     >
                       <div>
-                        <div className="flex items-center justify-between pb-3 mb-4 border-b border-gold-400/20">
+                        <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-gold-400/20">
                           <h3 className="font-display font-bold text-base text-stone-900">
                             {cat.title}
                           </h3>
-                          <span className="text-[11px] font-mono text-stone-500 font-semibold px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200">
+                          <span className="text-[11px] font-mono text-stone-500 font-semibold px-2 py-0.5 rounded-full bg-stone-100 border border-stone-200">
                             {cat.skills.length} skills
                           </span>
                         </div>
 
                         {/* Existing Skills Badges */}
-                        <div className="flex flex-wrap gap-2 mb-6 min-h-[48px]">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 min-h-[36px]">
                           {cat.skills.map((s) => (
                             <div
                               key={s.name}
-                              className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gold-50/80 border border-gold-400/30 text-xs font-mono text-stone-900 hover:border-gold-400/60 shadow-xs transition-all"
+                              className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gold-50/80 border border-gold-400/30 text-xs font-mono text-stone-900 hover:border-gold-400/60 shadow-xs transition-all"
                             >
                               <div>
                                 <span className="font-bold">{s.name}</span>
-                                <span className="text-[10px] text-stone-500 ml-1.5 font-normal">({s.detail})</span>
+                                <span className="text-[10px] text-stone-500 ml-1 font-normal">({s.detail})</span>
                               </div>
                               <button
                                 onClick={() => deleteSkill(cat.id, s.name)}
@@ -1086,9 +928,9 @@ export default function AdminDashboard() {
                       </div>
 
                       {/* Clean, Full-Width In-Card Add Form that NEVER overflows */}
-                      <div className="pt-4 border-t border-gold-400/20 mt-2">
-                        <div className="bg-warmwhite-50/90 rounded-2xl p-3.5 sm:p-4 border border-gold-400/25">
-                          <div className="flex items-center justify-between mb-2.5">
+                      <div className="pt-3 border-t border-gold-400/20 mt-1">
+                        <div className="bg-warmwhite-50/90 rounded-xl p-3 sm:p-3.5 border border-gold-400/25">
+                          <div className="flex items-center justify-between mb-2">
                             <span className="text-[11px] font-mono font-bold text-gold-900 uppercase tracking-wider flex items-center gap-1.5">
                               <Plus className="w-3.5 h-3.5 text-gold-700 stroke-[3]" />
                               <span>Add Skill to {cat.title}</span>
@@ -1096,7 +938,7 @@ export default function AdminDashboard() {
                             <span className="text-[10px] font-mono text-stone-400 hidden sm:inline">Press Enter to save</span>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2.5">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                             <div className="min-w-0">
                               <label className="block text-[10px] font-mono text-stone-600 font-semibold mb-1 uppercase tracking-wider">
                                 Skill Name *
@@ -1115,7 +957,7 @@ export default function AdminDashboard() {
                                     handleAddSkill(cat.id);
                                   }
                                 }}
-                                className="w-full px-3 py-2 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono shadow-xs transition-all"
+                                className="w-full px-3 py-1.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono shadow-xs transition-all"
                               />
                             </div>
 
@@ -1137,7 +979,7 @@ export default function AdminDashboard() {
                                     handleAddSkill(cat.id);
                                   }
                                 }}
-                                className="w-full px-3 py-2 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono shadow-xs transition-all"
+                                className="w-full px-3 py-1.5 rounded-xl bg-white border border-gold-400/35 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono shadow-xs transition-all"
                               />
                             </div>
                           </div>
@@ -1145,7 +987,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleAddSkill(cat.id)}
                             type="button"
-                            className="w-full btn-gold py-2 rounded-xl text-stone-950 font-bold text-xs font-mono flex items-center justify-center gap-1.5 shadow-xs hover:shadow-gold-500/20 active:scale-[0.99] cursor-pointer transition-all"
+                            className="w-full btn-gold py-1.5 rounded-xl text-stone-950 font-bold text-xs font-mono flex items-center justify-center gap-1.5 shadow-xs hover:shadow-gold-500/20 active:scale-[0.99] cursor-pointer transition-all"
                           >
                             <Plus className="w-3.5 h-3.5 stroke-[3]" />
                             <span>Add to {cat.title}</span>
@@ -1161,8 +1003,8 @@ export default function AdminDashboard() {
 
             {/* TAB 4: PROJECTS */}
             {activeTab === 'projects' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
                   <div className="relative flex-1 max-w-md">
                     <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
@@ -1170,29 +1012,29 @@ export default function AdminDashboard() {
                       placeholder="Search projects..."
                       value={projectSearch}
                       onChange={(e) => setProjectSearch(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/30 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-gold-500 transition-all font-mono shadow-xs"
+                      className="w-full pl-9 pr-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/30 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-gold-500 transition-all font-mono shadow-xs"
                     />
                   </div>
 
                   <button
                     onClick={handleOpenAddProject}
                     type="button"
-                    className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
+                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
                   >
                     <Plus className="w-4 h-4 stroke-[3]" />
                     <span>Add New Project</span>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                   {filteredProjects.map((p) => (
                     <div
                       key={p.id}
-                      className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 hover:border-gold-400/60 transition-all flex flex-col justify-between group shadow-gold-card hover:shadow-glow-gold-sm"
+                      className="p-4 sm:p-4.5 rounded-2xl bg-white/95 border border-gold-400/30 hover:border-gold-400/60 transition-all flex flex-col justify-between group shadow-gold-card hover:shadow-glow-gold-sm"
                     >
                       <div>
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <span className="px-2.5 py-1 rounded-md bg-gold-500/15 border border-gold-400/35 text-[11px] font-mono text-gold-900 font-bold uppercase tracking-wider">
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className="px-2 py-0.5 rounded-md bg-gold-500/15 border border-gold-400/35 text-[10px] font-mono text-gold-900 font-bold uppercase tracking-wider">
                             {p.category}
                           </span>
                           <span className="text-[10px] font-mono text-stone-500 font-semibold">
@@ -1200,17 +1042,17 @@ export default function AdminDashboard() {
                           </span>
                         </div>
 
-                        <h3 className="text-base font-display font-bold text-stone-950 mb-1 group-hover:text-gold-700 transition-colors">
+                        <h3 className="text-sm sm:text-base font-display font-bold text-stone-950 mb-0.5 group-hover:text-gold-700 transition-colors">
                           {p.title}
                         </h3>
-                        <p className="text-xs font-mono text-gold-800 mb-3 line-clamp-1 font-semibold">
+                        <p className="text-xs font-mono text-gold-800 mb-2 line-clamp-1 font-semibold">
                           {p.tagline}
                         </p>
-                        <p className="text-xs text-stone-600 line-clamp-3 mb-4 leading-relaxed font-normal">
+                        <p className="text-xs text-stone-600 line-clamp-2 sm:line-clamp-3 mb-3 leading-relaxed font-normal">
                           {p.description}
                         </p>
 
-                        <div className="flex flex-wrap gap-1.5 mb-4">
+                        <div className="flex flex-wrap gap-1 mb-3">
                           {Array.isArray(p.technologies) && p.technologies.slice(0, 4).map((tech) => (
                             <span key={tech} className="px-2 py-0.5 rounded-md bg-gold-50/90 border border-gold-400/25 text-[10px] font-mono text-stone-700">
                               {tech}
@@ -1224,15 +1066,15 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      <div className="pt-3 border-t border-gold-400/20 flex items-center justify-between">
+                      <div className="pt-2.5 border-t border-gold-400/20 flex items-center justify-between">
                         <span className="text-[11px] font-mono text-stone-500 truncate max-w-[140px]">
                           {p.metrics || 'Custom metrics'}
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleOpenEditProject(p)}
                             type="button"
-                            className="p-2 rounded-lg bg-gold-50/80 hover:bg-gold-100 text-stone-800 border border-gold-400/30 transition-all cursor-pointer shadow-xs"
+                            className="p-1.5 rounded-lg bg-gold-50/80 hover:bg-gold-100 text-stone-800 border border-gold-400/30 transition-all cursor-pointer shadow-xs"
                             title="Edit project"
                           >
                             <Edit3 className="w-3.5 h-3.5 text-stone-700" />
@@ -1240,7 +1082,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleDeleteProject(p.id, p.title)}
                             type="button"
-                            className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-all cursor-pointer shadow-xs"
+                            className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-all cursor-pointer shadow-xs"
                             title="Delete project"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1255,17 +1097,17 @@ export default function AdminDashboard() {
 
             {/* TAB 5: EDUCATION */}
             {activeTab === 'education' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
                   <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-1.5">
                       <GraduationCap className="w-3.5 h-3.5 text-gold-600" />
                       <span>Academic Milestones Active</span>
                     </div>
                     <h2 className="text-xl sm:text-2xl font-display font-extrabold text-stone-900 tracking-tight">
                       Academic Background & Education ({education.length})
                     </h2>
-                    <p className="text-xs text-stone-600 font-mono mt-1">
+                    <p className="text-xs text-stone-600 font-mono mt-0.5">
                       Manage diplomas, degrees, secondary education, or upcoming academic qualifications.
                     </p>
                   </div>
@@ -1273,25 +1115,25 @@ export default function AdminDashboard() {
                   <button
                     onClick={handleOpenAddEducation}
                     type="button"
-                    className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
+                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
                   >
                     <Plus className="w-4 h-4 stroke-[3]" />
                     <span>+ Add Education Detail</span>
                   </button>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-3.5">
                   {education.map((edu) => (
                     <div
                       key={edu.id}
-                      className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4"
+                      className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-3"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gold-400/20 pb-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gold-400/20 pb-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-1 rounded-md bg-gold-500/15 border border-gold-400/35 text-[11px] font-mono text-gold-900 font-bold uppercase">
+                          <span className="px-2 py-0.5 rounded-md bg-gold-500/15 border border-gold-400/35 text-[10px] font-mono text-gold-900 font-bold uppercase">
                             {edu.type}
                           </span>
-                          <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
+                          <span className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border ${
                             edu.status && edu.status.toLowerCase().includes('completed')
                               ? 'text-emerald-800 bg-emerald-50 border-emerald-200'
                               : 'text-gold-900 bg-gold-500/10 border-gold-400/30'
@@ -1300,11 +1142,11 @@ export default function AdminDashboard() {
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleOpenEditEducation(edu)}
                             type="button"
-                            className="text-xs font-mono text-stone-600 hover:text-gold-900 transition-colors inline-flex items-center gap-1.5 p-1 px-2.5 rounded-xl hover:bg-gold-50 border border-stone-200 hover:border-gold-300 cursor-pointer"
+                            className="text-xs font-mono text-stone-600 hover:text-gold-900 transition-colors inline-flex items-center gap-1.5 py-1 px-2.5 rounded-xl hover:bg-gold-50 border border-stone-200 hover:border-gold-300 cursor-pointer"
                             title="Edit in modal"
                           >
                             <Edit3 className="w-3.5 h-3.5 text-gold-700" />
@@ -1313,7 +1155,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleDeleteEducation(edu.id, edu.degree)}
                             type="button"
-                            className="text-xs font-mono text-stone-500 hover:text-red-600 transition-colors inline-flex items-center gap-1.5 p-1 px-2.5 rounded-xl hover:bg-red-50 border border-stone-200 hover:border-red-200 cursor-pointer"
+                            className="text-xs font-mono text-stone-500 hover:text-red-600 transition-colors inline-flex items-center gap-1.5 py-1 px-2.5 rounded-xl hover:bg-red-50 border border-stone-200 hover:border-red-200 cursor-pointer"
                             title="Delete education record"
                           >
                             <Trash2 className="w-3.5 h-3.5 text-red-500" />
@@ -1322,79 +1164,79 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                             Degree / Certification Title
                           </label>
                           <input
                             type="text"
                             value={edu.degree}
                             onChange={(e) => updateEducation(edu.id, { degree: e.target.value })}
-                            className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                            className="w-full px-3 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                             Institution / College
                           </label>
                           <input
                             type="text"
                             value={edu.institution}
                             onChange={(e) => updateEducation(edu.id, { institution: e.target.value })}
-                            className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                            className="w-full px-3 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                             Badge Category Label
                           </label>
                           <input
                             type="text"
                             value={edu.type}
                             onChange={(e) => updateEducation(edu.id, { type: e.target.value })}
-                            className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                            className="w-full px-3 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                             Time Period
                           </label>
                           <input
                             type="text"
                             value={edu.period}
                             onChange={(e) => updateEducation(edu.id, { period: e.target.value })}
-                            className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                            className="w-full px-3 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                          <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                             Status Badge Text
                           </label>
                           <input
                             type="text"
                             value={edu.status}
                             onChange={(e) => updateEducation(edu.id, { status: e.target.value })}
-                            className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                            className="w-full px-3 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                           Academic Overview Narrative
                         </label>
                         <textarea
                           rows={2}
                           value={edu.description}
                           onChange={(e) => updateEducation(edu.id, { description: e.target.value })}
-                          className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
+                          className="w-full px-3 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
                         />
                       </div>
                     </div>
@@ -1405,39 +1247,39 @@ export default function AdminDashboard() {
 
             {/* TAB: CONTACT DETAILS */}
             {activeTab === 'contact' && (
-              <form onSubmit={handleSaveProfile} className="space-y-6 animate-in fade-in duration-200">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+              <form onSubmit={handleSaveProfile} className="space-y-4 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
                   <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-1.5">
                       <Phone className="w-3.5 h-3.5 text-gold-600" />
                       <span>Live Portfolio Channels Active</span>
                     </div>
                     <h2 className="text-xl sm:text-2xl font-display font-extrabold text-stone-900 tracking-tight">
                       Edit Contact Details & Channels
                     </h2>
-                    <p className="text-xs text-stone-600 font-mono mt-1">
+                    <p className="text-xs text-stone-600 font-mono mt-0.5">
                       Manage phone, email, location, work availability pitch, and social links shown on your live portfolio.
                     </p>
                   </div>
 
                   <button
                     type="submit"
-                    className="btn-gold px-6 py-2.5 rounded-xl text-stone-950 font-bold text-xs sm:text-sm font-mono uppercase tracking-wider shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
+                    className="btn-gold px-5 py-2 rounded-xl text-stone-950 font-bold text-xs sm:text-sm font-mono uppercase tracking-wider shadow-md shadow-gold-500/20 active:scale-98 cursor-pointer shrink-0"
                   >
                     Save Changes
                   </button>
                 </div>
 
                 {/* Direct Contact Channels Card */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
-                  <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-3">
+                  <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 flex items-center gap-2">
                     <Phone className="w-4 h-4 text-gold-700" />
                     <span>Direct Channels</span>
                   </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Primary Email Address *
                       </label>
                       <input
@@ -1446,15 +1288,15 @@ export default function AdminDashboard() {
                         value={profileForm.email || ''}
                         onChange={(e) => setProfileForm(p => ({ ...p, email: e.target.value }))}
                         placeholder="e.g. bharathlokesh07@gmail.com"
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
-                      <p className="text-[10px] text-stone-500 font-mono mt-1">
+                      <p className="text-[10px] text-stone-500 font-mono mt-0.5">
                         Displays on the contact card & enables 1-click email transmission.
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Phone Number *
                       </label>
                       <input
@@ -1463,15 +1305,15 @@ export default function AdminDashboard() {
                         value={profileForm.phone || ''}
                         onChange={(e) => setProfileForm(p => ({ ...p, phone: e.target.value }))}
                         placeholder="e.g. +91 9611673039"
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
-                      <p className="text-[10px] text-stone-500 font-mono mt-1">
+                      <p className="text-[10px] text-stone-500 font-mono mt-0.5">
                         Includes 1-click call and quick copy on the public site.
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Location / City
                       </label>
                       <input
@@ -1479,9 +1321,9 @@ export default function AdminDashboard() {
                         value={profileForm.location || ''}
                         onChange={(e) => setProfileForm(p => ({ ...p, location: e.target.value }))}
                         placeholder="e.g. Tumkur, Karnataka, India"
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
-                      <p className="text-[10px] text-stone-500 font-mono mt-1">
+                      <p className="text-[10px] text-stone-500 font-mono mt-0.5">
                         Displays with map pin on your contact section.
                       </p>
                     </div>
@@ -1489,15 +1331,15 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Social Profiles & Developer Links Card */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
-                  <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-3">
+                  <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 flex items-center gap-2">
                     <Database className="w-4 h-4 text-gold-700" />
                     <span>Social & Professional Profiles</span>
                   </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         GitHub Profile URL
                       </label>
                       <input
@@ -1508,12 +1350,12 @@ export default function AdminDashboard() {
                           social: { ...(p.social || {}), github: e.target.value }
                         }))}
                         placeholder="https://github.com/..."
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         LinkedIn Profile URL
                       </label>
                       <input
@@ -1524,12 +1366,12 @@ export default function AdminDashboard() {
                           social: { ...(p.social || {}), linkedin: e.target.value }
                         }))}
                         placeholder="https://linkedin.com/in/..."
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Instagram Profile URL
                       </label>
                       <input
@@ -1540,21 +1382,21 @@ export default function AdminDashboard() {
                           social: { ...(p.social || {}), instagram: e.target.value }
                         }))}
                         placeholder="https://instagram.com/..."
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Preview Box */}
-                <div className="p-6 rounded-2xl bg-warmwhite-50 border border-gold-400/30 shadow-xs">
-                  <span className="block text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold mb-3">
+                <div className="p-4 sm:p-4.5 rounded-2xl bg-warmwhite-50 border border-gold-400/30 shadow-xs">
+                  <span className="block text-xs font-mono uppercase tracking-wider text-stone-500 font-semibold mb-2">
                     Live Public Portfolio Preview
                   </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-3.5 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-gold-500/10 text-gold-700">
-                        <Mail className="w-4 h-4" />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div className="p-3 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-gold-500/10 text-gold-700">
+                        <Mail className="w-3.5 h-3.5" />
                       </div>
                       <div className="min-w-0">
                         <span className="block text-[10px] font-mono text-stone-400 uppercase">EMAIL</span>
@@ -1562,9 +1404,9 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-gold-500/10 text-gold-700">
-                        <Phone className="w-4 h-4" />
+                    <div className="p-3 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-gold-500/10 text-gold-700">
+                        <Phone className="w-3.5 h-3.5" />
                       </div>
                       <div className="min-w-0">
                         <span className="block text-[10px] font-mono text-stone-400 uppercase">PHONE</span>
@@ -1572,9 +1414,9 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-gold-500/10 text-gold-700">
-                        <MapPin className="w-4 h-4" />
+                    <div className="p-3 rounded-xl bg-white border border-gold-400/25 shadow-xs flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-gold-500/10 text-gold-700">
+                        <MapPin className="w-3.5 h-3.5" />
                       </div>
                       <div className="min-w-0">
                         <span className="block text-[10px] font-mono text-stone-400 uppercase">LOCATION</span>
@@ -1584,10 +1426,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-1">
                   <button
                     type="submit"
-                    className="w-full btn-gold py-3.5 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 active:scale-[0.99] cursor-pointer"
+                    className="w-full btn-gold py-2.5 sm:py-3 rounded-xl text-stone-950 font-bold text-sm shadow-md shadow-gold-500/20 active:scale-[0.99] cursor-pointer"
                   >
                     Save Contact Details & Update Portfolio
                   </button>
@@ -1597,33 +1439,27 @@ export default function AdminDashboard() {
 
             {/* TAB 6: INQUIRIES & CONTACT CHANNELS */}
             {activeTab === 'inquiries' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
                   <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-500/10 border border-gold-400/30 text-gold-900 text-xs font-mono font-semibold mb-1.5">
                       <Mail className="w-3.5 h-3.5 text-gold-600" />
                       <span>Inquiries & Messages Inbox</span>
                     </div>
                     <h2 className="text-xl sm:text-2xl font-display font-extrabold text-stone-900 tracking-tight">
                       Received Inquiries ({inquiries.length})
                     </h2>
-                    <p className="text-xs text-stone-600 font-mono mt-1">
+                    <p className="text-xs text-stone-600 font-mono mt-0.5">
                       Real-time messages submitted by visitors on your live portfolio.
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    {/* Supabase Status Badge */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 text-xs font-mono font-medium shadow-xs bg-emerald-50 text-emerald-800">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="font-semibold">Supabase Connected</span>
-                    </div>
-
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       onClick={handleSyncInquiries}
                       disabled={isRefreshingInquiries}
                       type="button"
-                      className="px-3.5 py-2 rounded-xl border border-gold-400/40 hover:bg-gold-50 text-xs font-mono text-stone-800 flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98 disabled:opacity-50"
+                      className="px-3.5 py-1.5 rounded-xl border border-gold-400/40 hover:bg-gold-50 text-xs font-mono text-stone-800 flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98 disabled:opacity-50"
                       title="Sync inquiries from Supabase"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 text-gold-700 ${isRefreshingInquiries ? 'animate-spin' : ''}`} />
@@ -1633,9 +1469,9 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Inquiries Inbox */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-gold-400/20">
-                    <h3 className="font-display font-bold text-base text-stone-900 flex items-center gap-2">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-3">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-gold-400/20">
+                    <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 flex items-center gap-2">
                       <Mail className="w-4 h-4 text-gold-700" />
                       <span>Inbox Messages</span>
                     </h3>
@@ -1645,11 +1481,11 @@ export default function AdminDashboard() {
                   </div>
 
                   {inquiries.length === 0 ? (
-                    <div className="text-center py-12 border border-dashed border-gold-400/30 rounded-2xl bg-warmwhite-50/70 p-6">
-                      <div className="w-12 h-12 rounded-2xl bg-gold-500/10 text-gold-700 flex items-center justify-center mx-auto mb-3 border border-gold-400/30">
-                        <Mail className="w-6 h-6" />
+                    <div className="text-center py-8 border border-dashed border-gold-400/30 rounded-2xl bg-warmwhite-50/70 p-4">
+                      <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-700 flex items-center justify-center mx-auto mb-2 border border-gold-400/30">
+                        <Mail className="w-5 h-5" />
                       </div>
-                      <h4 className="font-display font-bold text-stone-900 text-sm mb-1">
+                      <h4 className="font-display font-bold text-stone-900 text-sm mb-0.5">
                         No inquiries received yet
                       </h4>
                       <p className="text-xs font-mono text-stone-500 max-w-sm mx-auto">
@@ -1657,52 +1493,52 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {inquiries.map((inq) => (
                         <div
                           key={inq.id}
-                          className={`p-5 rounded-2xl border transition-all ${
+                          className={`p-3.5 sm:p-4 rounded-xl border transition-all ${
                             inq.read
                               ? 'bg-warmwhite-50/80 border-gold-400/20'
-                              : 'bg-white border-gold-400/50 shadow-md ring-1 ring-gold-400/20'
+                              : 'bg-white border-gold-400/50 shadow-sm ring-1 ring-gold-400/20'
                           }`}
                         >
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <div className="flex items-center gap-2.5">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 mb-1.5">
+                            <div className="flex items-center gap-2">
                               {!inq.read ? (
-                                <span className="w-2.5 h-2.5 rounded-full bg-gold-500 shrink-0 shadow-sm" title="Unread" />
+                                <span className="w-2 h-2 rounded-full bg-gold-500 shrink-0 shadow-xs" title="Unread" />
                               ) : (
-                                <span className="w-2.5 h-2.5 rounded-full bg-stone-300 shrink-0" title="Read" />
+                                <span className="w-2 h-2 rounded-full bg-stone-300 shrink-0" title="Read" />
                               )}
-                              <span className="font-bold text-sm text-stone-900">{inq.name}</span>
+                              <span className="font-bold text-xs sm:text-sm text-stone-900">{inq.name}</span>
                               <a
                                 href={`mailto:${inq.email}`}
-                                className="text-xs font-mono text-gold-800 hover:text-gold-950 underline decoration-gold-400/40"
+                                className="text-xs font-mono text-gold-800 hover:text-gold-950 underline decoration-gold-400/40 truncate max-w-[200px]"
                               >
                                 {inq.email}
                               </a>
                             </div>
-                            <span className="text-[11px] font-mono text-stone-400">
+                            <span className="text-[10px] font-mono text-stone-400">
                               {inq.date ? new Date(inq.date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Recent'}
                             </span>
                           </div>
 
                           {inq.subject && (
-                            <div className="mb-2">
+                            <div className="mb-1.5">
                               <span className="inline-block px-2 py-0.5 rounded-md bg-gold-500/10 border border-gold-400/25 text-[10px] font-mono font-bold text-gold-900 uppercase tracking-wider">
                                 {inq.subject}
                               </span>
                             </div>
                           )}
 
-                          <div className="p-3.5 rounded-xl bg-warmwhite-100/60 border border-gold-400/20 text-xs text-stone-800 leading-relaxed font-normal mb-3 whitespace-pre-wrap">
+                          <div className="p-3 rounded-lg bg-warmwhite-100/60 border border-gold-400/20 text-xs text-stone-800 leading-relaxed font-normal mb-2 whitespace-pre-wrap">
                             {inq.message}
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-gold-400/15">
+                          <div className="flex flex-wrap items-center gap-2 pt-1.5 border-t border-gold-400/15">
                             <a
                               href={`mailto:${inq.email}?subject=Re: ${encodeURIComponent(inq.subject || 'Portfolio Inquiry')}&body=Hi ${encodeURIComponent(inq.name)},%0D%0A%0D%0AThank you for reaching out via my portfolio.%0D%0A%0D%0ABest regards,%0D%0ABharath Lokesh`}
-                              className="text-xs font-mono font-bold text-stone-900 hover:text-gold-800 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gold-400/30 hover:border-gold-500 transition-all shadow-xs cursor-pointer"
+                              className="text-xs font-mono font-bold text-stone-900 hover:text-gold-800 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-gold-400/30 hover:border-gold-500 transition-all shadow-xs cursor-pointer"
                             >
                               <Mail className="w-3.5 h-3.5 text-gold-600" />
                               <span>Reply via Email</span>
@@ -1712,7 +1548,7 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => markInquiryRead(inq.id)}
                                 type="button"
-                                className="text-xs font-mono text-gold-800 hover:text-gold-950 font-bold cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-gold-50 transition-colors"
+                                className="text-xs font-mono text-gold-800 hover:text-gold-950 font-bold cursor-pointer px-2 py-1 rounded-lg hover:bg-gold-50 transition-colors"
                               >
                                 ✓ Mark as Read
                               </button>
@@ -1721,7 +1557,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => deleteInquiry(inq.id)}
                               type="button"
-                              className="text-xs font-mono text-red-600 hover:text-red-700 cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors ml-auto"
+                              className="text-xs font-mono text-red-600 hover:text-red-700 cursor-pointer px-2 py-1 rounded-lg hover:bg-red-50 transition-colors ml-auto"
                             >
                               <Trash2 className="w-3.5 h-3.5 inline mr-1" />
                               <span>Delete</span>
@@ -1734,90 +1570,90 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Direct Contact Channels Form */}
-                <form onSubmit={handleSaveProfile} className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
-                  <h3 className="font-display font-bold text-base text-stone-900 mb-2">
+                <form onSubmit={handleSaveProfile} className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-3">
+                  <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 mb-1">
                     Direct Contact Channels & Socials
                   </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Primary Email
                       </label>
                       <input
                         type="email"
                         value={profileForm.email}
                         onChange={(e) => setProfileForm(p => ({ ...p, email: e.target.value }))}
-                        className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Phone Number
                       </label>
                       <input
                         type="text"
                         value={profileForm.phone}
                         onChange={(e) => setProfileForm(p => ({ ...p, phone: e.target.value }))}
-                        className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Location
                       </label>
                       <input
                         type="text"
                         value={profileForm.location}
                         onChange={(e) => setProfileForm(p => ({ ...p, location: e.target.value }))}
-                        className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         GitHub Profile URL
                       </label>
                       <input
                         type="url"
                         value={profileForm.social?.github || ''}
                         onChange={(e) => setProfileForm(p => ({ ...p, social: { ...p.social, github: e.target.value } }))}
-                        className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         LinkedIn Profile URL
                       </label>
                       <input
                         type="url"
                         value={profileForm.social?.linkedin || ''}
                         onChange={(e) => setProfileForm(p => ({ ...p, social: { ...p.social, linkedin: e.target.value } }))}
-                        className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Instagram Profile URL
                       </label>
                       <input
                         type="url"
                         value={profileForm.social?.instagram || ''}
                         onChange={(e) => setProfileForm(p => ({ ...p, social: { ...p.social, instagram: e.target.value } }))}
-                        className="w-full px-4 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
+                        className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
                   </div>
 
                   <button
                     type="submit"
-                    className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs font-mono uppercase tracking-wider shadow-sm cursor-pointer"
+                    className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs font-mono uppercase tracking-wider shadow-sm cursor-pointer"
                   >
                     Save Contact Channels
                   </button>
@@ -1827,9 +1663,9 @@ export default function AdminDashboard() {
 
             {/* TAB 7: SETTINGS */}
             {activeTab === 'settings' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
-                  <h2 className="text-lg font-display font-bold text-stone-900 mb-0.5">
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+                  <h2 className="text-base sm:text-lg font-display font-bold text-stone-900 mb-0.5">
                     Security & System Settings
                   </h2>
                   <p className="text-xs text-stone-600 font-mono">
@@ -1838,19 +1674,19 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Admin Login Credentials Card */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
-                  <div className="flex items-center gap-2 mb-2">
-                    <KeyRound className="w-5 h-5 text-gold-700" />
-                    <h3 className="text-base font-display font-bold text-stone-900">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <KeyRound className="w-4 h-4 text-gold-700" />
+                    <h3 className="text-sm sm:text-base font-display font-bold text-stone-900">
                       Admin Login Credentials
                     </h3>
                   </div>
-                  <p className="text-xs text-stone-600 font-mono mb-6">
+                  <p className="text-xs text-stone-600 font-mono mb-4">
                     Update the registered Gmail address and password required to log in to your /admin console.
                   </p>
 
                   {passwordFeedback.text && (
-                    <div className={`p-3 rounded-xl mb-4 text-xs font-mono ${
+                    <div className={`p-2.5 rounded-xl mb-3 text-xs font-mono ${
                       passwordFeedback.type === 'error'
                         ? 'bg-red-50 border border-red-200 text-red-700'
                         : 'bg-emerald-50 border border-emerald-200 text-emerald-800'
@@ -1859,9 +1695,9 @@ export default function AdminDashboard() {
                     </div>
                   )}
 
-                  <form onSubmit={handleUpdateCredentials} className="space-y-4 max-w-md">
+                  <form onSubmit={handleUpdateCredentials} className="space-y-3 max-w-md">
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Admin Login ID (Gmail / Email) *
                       </label>
                       <input
@@ -1870,15 +1706,15 @@ export default function AdminDashboard() {
                         value={accountEmail}
                         onChange={(e) => setAccountEmail(e.target.value)}
                         placeholder="bharathlokesh07@gmail.com"
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
+                        className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
                       />
-                      <span className="text-[10px] font-mono text-stone-500 mt-1 block">
+                      <span className="text-[10px] font-mono text-stone-500 mt-0.5 block">
                         Current Login ID: <strong className="text-stone-800">{adminEmail}</strong>
                       </span>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         Current Password * (to authorize changes)
                       </label>
                       <input
@@ -1887,12 +1723,12 @@ export default function AdminDashboard() {
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         placeholder="Enter current password"
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
+                        className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                         New Password (optional)
                       </label>
                       <input
@@ -1900,13 +1736,13 @@ export default function AdminDashboard() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Leave blank to keep existing password"
-                        className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
+                        className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
                       />
                     </div>
 
                     {newPassword && (
                       <div>
-                        <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1.5">
+                        <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-1">
                           Confirm New Password
                         </label>
                         <input
@@ -1914,14 +1750,14 @@ export default function AdminDashboard() {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="Re-enter new password"
-                          className="w-full px-4 py-2.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
+                          className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 shadow-xs"
                         />
                       </div>
                     )}
 
                     <button
                       type="submit"
-                      className="btn-gold px-5 py-2.5 rounded-xl text-stone-950 font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-sm cursor-pointer"
+                      className="btn-gold px-4 py-2 rounded-xl text-stone-950 font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-sm cursor-pointer"
                     >
                       Save Admin Credentials
                     </button>
@@ -1929,9 +1765,9 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Backup & Factory Reset */}
-                <div className="p-6 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-6">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card space-y-4">
                   <div>
-                    <h3 className="text-base font-display font-bold text-stone-900 mb-1">
+                    <h3 className="text-sm sm:text-base font-display font-bold text-stone-900 mb-0.5">
                       Backup, Restore & Reset
                     </h3>
                     <p className="text-xs text-stone-600 font-mono">
@@ -1939,18 +1775,18 @@ export default function AdminDashboard() {
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       onClick={handleExportBackup}
                       type="button"
-                      className="px-4 py-2.5 rounded-xl bg-white hover:bg-gold-50 border border-gold-400/35 text-xs font-mono text-stone-800 flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+                      className="px-3.5 py-2 rounded-xl bg-white hover:bg-gold-50 border border-gold-400/35 text-xs font-mono text-stone-800 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                     >
-                      <Download className="w-4 h-4 text-gold-700" />
+                      <Download className="w-3.5 h-3.5 text-gold-700" />
                       <span>Download JSON Backup</span>
                     </button>
 
-                    <label className="px-4 py-2.5 rounded-xl bg-white hover:bg-gold-50 border border-gold-400/35 text-xs font-mono text-stone-800 flex items-center gap-2 transition-all cursor-pointer shadow-sm">
-                      <Upload className="w-4 h-4 text-gold-700" />
+                    <label className="px-3.5 py-2 rounded-xl bg-white hover:bg-gold-50 border border-gold-400/35 text-xs font-mono text-stone-800 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs">
+                      <Upload className="w-3.5 h-3.5 text-gold-700" />
                       <span>Restore from Backup</span>
                       <input
                         type="file"
@@ -1963,9 +1799,9 @@ export default function AdminDashboard() {
                     <button
                       onClick={handleResetDefaults}
                       type="button"
-                      className="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-mono text-red-700 flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+                      className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-mono text-red-700 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                     >
-                      <RotateCcw className="w-4 h-4" />
+                      <RotateCcw className="w-3.5 h-3.5" />
                       <span>Restore Factory Defaults</span>
                     </button>
                   </div>
