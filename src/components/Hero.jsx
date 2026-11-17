@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { ArrowDown, Eye } from 'lucide-react';
 import HeroVisual from './HeroVisual';
@@ -8,6 +8,16 @@ export default function Hero() {
   const { profile } = usePortfolio();
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const resumeUrl = `${import.meta.env.BASE_URL}resume/Bharath_Resume.pdf`;
+
+  // Preload resume preview and PDF so opening the viewer is instantaneous
+  useEffect(() => {
+    const webpUrl = `${import.meta.env.BASE_URL}resume/resume_preview.webp`;
+    const img = new Image();
+    img.src = webpUrl;
+
+    // Prefetch vector PDF in background
+    fetch(resumeUrl, { cache: 'force-cache' }).catch(() => {});
+  }, [resumeUrl]);
 
   const handleScrollToProjects = (e) => {
     e.preventDefault();
