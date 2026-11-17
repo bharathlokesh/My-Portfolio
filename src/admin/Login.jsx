@@ -37,7 +37,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-warmwhite-200 text-stone-900 flex flex-col justify-center items-center px-4 relative selection:bg-gold-500/20 selection:text-gold-900">
+    <div className="admin-scope min-h-screen bg-warmwhite-200 text-stone-900 flex flex-col justify-center items-center px-4 relative selection:bg-gold-500/20 selection:text-gold-900 font-sans">
 
       {/* Background Subtle Gold Grid Overlay - GPU isolated */}
       <div className="fixed inset-0 tech-grid-pattern opacity-40 pointer-events-none z-0 transform-gpu will-change-transform" />
@@ -48,7 +48,7 @@ export default function Login() {
       {/* Return to Portfolio Link */}
       <Link
         to="/"
-        className="absolute top-6 left-6 z-10 inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-stone-700 hover:text-stone-950 transition-colors py-2 px-4 rounded-full border border-gold-400/30 hover:border-gold-500 bg-white/80 backdrop-blur-md shadow-sm"
+        className="absolute top-6 left-6 z-10 inline-flex items-center gap-2 text-xs font-sans uppercase tracking-widest text-stone-700 hover:text-stone-950 transition-colors py-2 px-4 rounded-full border border-gold-400/30 hover:border-gold-500 bg-white/80 backdrop-blur-md shadow-sm"
       >
         <ArrowLeft className="w-3.5 h-3.5 text-gold-600" />
         <span>Return to Portfolio</span>
@@ -66,12 +66,12 @@ export default function Login() {
             <Shield className="w-7 h-7 stroke-[1.8]" />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-[10px] font-mono tracking-widest uppercase text-gold-900 font-bold mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-400/30 text-[10px] font-sans tracking-widest uppercase text-gold-900 font-bold mb-2">
             <Lock className="w-3 h-3 text-gold-700" />
             <span>Authenticated Admin Access</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-display font-extrabold tracking-tight text-stone-900">
+          <h1 className="text-2xl sm:text-3xl font-sans font-extrabold tracking-tight text-stone-900">
             Admin Console
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 mt-1.5">
@@ -90,7 +90,7 @@ export default function Login() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold mb-2">
+            <label className="block text-xs font-sans uppercase tracking-wider text-gold-900 font-bold mb-2">
               Login ID
             </label>
             <div className="relative">
@@ -101,14 +101,14 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Login ID"
                 autoFocus
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all font-mono shadow-sm"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all font-sans shadow-sm"
               />
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-mono uppercase tracking-wider text-gold-900 font-bold">
+              <label className="block text-xs font-sans uppercase tracking-wider text-gold-900 font-bold">
                 Password
               </label>
             </div>
@@ -119,7 +119,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full pl-10 pr-11 py-3 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all font-mono shadow-sm"
+                className="w-full pl-10 pr-11 py-3 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all font-sans shadow-sm"
               />
               <button
                 type="button"
@@ -152,7 +152,7 @@ export default function Login() {
       </div>
 
       {/* Footer Branding */}
-      <p className="mt-8 text-stone-500 text-[11px] font-mono z-10">
+      <p className="mt-8 text-stone-500 text-[11px] font-sans z-10">
         Bharath Lokesh Portfolio Management • Secure Admin System
       </p>
 
