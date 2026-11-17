@@ -124,6 +124,7 @@ const STORAGE_KEYS = {
   SKILLS: 'bharath_portfolio_skills_v1',
   PROFILE: 'bharath_portfolio_profile_v1',
   EDUCATION: 'bharath_portfolio_education_v1',
+  CERTIFICATES: 'bharath_portfolio_certificates_v1',
   INQUIRIES: 'bharath_portfolio_inquiries_v1'
 };
 
@@ -162,6 +163,15 @@ export function PortfolioProvider({ children }) {
       return saved ? JSON.parse(saved) : DEFAULT_EDUCATION;
     } catch {
       return DEFAULT_EDUCATION;
+    }
+  });
+
+  const [certificates, setCertificates] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.CERTIFICATES);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
     }
   });
 
@@ -331,6 +341,12 @@ export function PortfolioProvider({ children }) {
             ...res.profile,
             social: { ...prev.social, ...(res.profile.social || {}) }
           }));
+          if (Array.isArray(res.profile.certificates)) {
+            setCertificates(res.profile.certificates);
+            try {
+              localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(res.profile.certificates));
+            } catch {}
+          }
           setProfileSyncStatus({
             source: 'supabase',
             lastChecked: res.updatedAt || new Date().toISOString(),
@@ -354,6 +370,12 @@ export function PortfolioProvider({ children }) {
           ...cloudProfile,
           social: { ...prev.social, ...(cloudProfile.social || {}) }
         }));
+        if (Array.isArray(cloudProfile.certificates)) {
+          setCertificates(cloudProfile.certificates);
+          try {
+            localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(cloudProfile.certificates));
+          } catch {}
+        }
         setProfileSyncStatus({
           source: 'supabase',
           lastChecked: new Date().toISOString(),
@@ -414,6 +436,14 @@ export function PortfolioProvider({ children }) {
       console.warn('Failed to save education to localStorage', e);
     }
   }, [education]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(certificates));
+    } catch (e) {
+      console.warn('Failed to save certificates to localStorage', e);
+    }
+  }, [certificates]);
 
   useEffect(() => {
     try {
@@ -493,7 +523,7 @@ export function PortfolioProvider({ children }) {
 
     // 3. Persist to Supabase Cloud so all devices & mobile reflect updates live
     setProfileSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
-    const cloudRes = await saveProfileCloud(nextProfile);
+    const cloudRes = await saveProfileCloud({ ...nextProfile, certificates });
     if (cloudRes && cloudRes.success) {
       setProfileSyncStatus({
         source: 'supabase',
@@ -509,6 +539,49 @@ export function PortfolioProvider({ children }) {
       }));
     }
     return cloudRes;
+  };
+
+  // Certificate Actions (With LocalStorage + Supabase Cloud Sync)
+  const addCertificate = async (certData) => {
+    const newCert = {
+      ...certData,
+      id: certData.id || `cert-${Date.now()}`,
+      badge: certData.badge || 'Verified Credential',
+      color: certData.color || 'from-gold-300/20 to-amber-400/20',
+      borderColor: certData.borderColor || 'border-gold-400/40',
+      createdAt: new Date().toISOString()
+    };
+    const nextCerts = [newCert, ...certificates];
+    setCertificates(nextCerts);
+    try {
+      localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(nextCerts));
+    } catch (e) {
+      console.warn('Failed to save certificates to localStorage', e);
+    }
+    await saveProfileCloud({ ...profile, certificates: nextCerts });
+    return newCert;
+  };
+
+  const updateCertificate = async (id, updatedFields) => {
+    const nextCerts = certificates.map(c => c.id === id ? { ...c, ...updatedFields } : c);
+    setCertificates(nextCerts);
+    try {
+      localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(nextCerts));
+    } catch (e) {
+      console.warn('Failed to save certificates to localStorage', e);
+    }
+    await saveProfileCloud({ ...profile, certificates: nextCerts });
+  };
+
+  const deleteCertificate = async (id) => {
+    const nextCerts = certificates.filter(c => c.id !== id);
+    setCertificates(nextCerts);
+    try {
+      localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(nextCerts));
+    } catch (e) {
+      console.warn('Failed to save certificates to localStorage', e);
+    }
+    await saveProfileCloud({ ...profile, certificates: nextCerts });
   };
 
   // Education Actions
@@ -560,11 +633,13 @@ export function PortfolioProvider({ children }) {
     localStorage.removeItem(STORAGE_KEYS.SKILLS);
     localStorage.removeItem(STORAGE_KEYS.PROFILE);
     localStorage.removeItem(STORAGE_KEYS.EDUCATION);
+    localStorage.removeItem(STORAGE_KEYS.CERTIFICATES);
     localStorage.removeItem(STORAGE_KEYS.INQUIRIES);
     setProjects(defaultProjects);
     setSkills(DEFAULT_SKILLS);
     setProfile(DEFAULT_PROFILE);
     setEducation(DEFAULT_EDUCATION);
+    setCertificates([]);
     setInquiries(DEFAULT_INQUIRIES);
   };
 
@@ -575,6 +650,7 @@ export function PortfolioProvider({ children }) {
       skills,
       profile,
       education,
+      certificates,
       inquiries,
       exportedAt: new Date().toISOString()
     };
@@ -588,6 +664,7 @@ export function PortfolioProvider({ children }) {
       if (parsed.skills && Array.isArray(parsed.skills)) setSkills(parsed.skills);
       if (parsed.profile && typeof parsed.profile === 'object') setProfile(parsed.profile);
       if (parsed.education && Array.isArray(parsed.education)) setEducation(parsed.education);
+      if (parsed.certificates && Array.isArray(parsed.certificates)) setCertificates(parsed.certificates);
       if (parsed.inquiries && Array.isArray(parsed.inquiries)) setInquiries(parsed.inquiries);
       return { success: true };
     } catch (e) {
@@ -608,6 +685,7 @@ export function PortfolioProvider({ children }) {
         profileSyncStatus,
         refreshProfileFromCloud,
         education,
+        certificates,
         inquiries,
         addProject,
         updateProject,
@@ -618,6 +696,9 @@ export function PortfolioProvider({ children }) {
         updateEducation,
         addEducation,
         deleteEducation,
+        addCertificate,
+        updateCertificate,
+        deleteCertificate,
         addInquiry,
         deleteInquiry,
         markInquiryRead,

@@ -1,20 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import profileImg from '../assets/profile.jpg';
 
-const NAV_ITEMS = [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Education', href: '#education' },
-  { label: 'Certifications', href: '#certifications' },
-  { label: 'Contact', href: '#contact' },
-];
-
 export default function Navbar() {
-  const { profile } = usePortfolio();
+  const { profile, certificates = [] } = usePortfolio();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -22,8 +12,19 @@ export default function Navbar() {
   const avatarSrc = profile?.profileImage || profileImg;
   const displayName = profile?.name || 'Bharath Lokesh';
 
+  // Dynamic Navigation Items: only include Certifications if at least one certificate exists
+  const navItems = useMemo(() => [
+    { label: 'Home', href: '#home' },
+    { label: 'About', href: '#about' },
+    { label: 'Skills', href: '#skills' },
+    { label: 'Projects', href: '#projects' },
+    { label: 'Education', href: '#education' },
+    ...(certificates && certificates.length > 0 ? [{ label: 'Certifications', href: '#certifications' }] : []),
+    { label: 'Contact', href: '#contact' },
+  ], [certificates]);
+
   useEffect(() => {
-    const sectionIds = NAV_ITEMS.map(item => item.href.substring(1));
+    const sectionIds = navItems.map(item => item.href.substring(1));
     let ticking = false;
 
     const handleScroll = () => {
@@ -49,7 +50,7 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [navItems]);
 
   const handleNavClick = (e, href) => {
     e.preventDefault();
@@ -92,7 +93,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-2 p-1.5 rounded-2xl bg-white/70 backdrop-blur-xl shadow-sm border border-gold-400/20">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const isActive = activeSection === item.href.substring(1);
               return (
                 <a
@@ -159,7 +160,7 @@ export default function Navbar() {
           </div>
 
           <nav className="flex flex-col gap-1.5">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const isActive = activeSection === item.href.substring(1);
               return (
                 <a
