@@ -198,17 +198,40 @@ export function PortfolioProvider({ children }) {
     error: null
   });
 
+  // Helper function to check if cloud profile matches current state
+  const areProfilesEqual = (p1, p2) => {
+    if (!p1 || !p2) return false;
+    return (
+      p1.name === p2.name &&
+      p1.title === p2.title &&
+      p1.profileImage === p2.profileImage &&
+      p1.heroBio === p2.heroBio &&
+      p1.aboutTitle === p2.aboutTitle &&
+      p1.aboutBio === p2.aboutBio &&
+      p1.email === p2.email &&
+      p1.phone === p2.phone &&
+      p1.location === p2.location &&
+      (p1.social?.github || '') === (p2.social?.github || '') &&
+      (p1.social?.linkedin || '') === (p2.social?.linkedin || '') &&
+      (p1.social?.instagram || '') === (p2.social?.instagram || '')
+    );
+  };
+
   // Fetch profile from Supabase Cloud
   const refreshProfileFromCloud = async () => {
     setProfileSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
     try {
       const res = await fetchProfileCloud();
       if (res && res.success && res.profile) {
-        setProfile(prev => ({
-          ...prev,
-          ...res.profile,
-          social: { ...prev.social, ...(res.profile.social || {}) }
-        }));
+        setProfile(prev => {
+          const merged = {
+            ...prev,
+            ...res.profile,
+            social: { ...prev.social, ...(res.profile.social || {}) }
+          };
+          if (areProfilesEqual(prev, merged)) return prev;
+          return merged;
+        });
         setProfileSyncStatus({
           source: 'supabase',
           lastChecked: res.updatedAt || new Date().toISOString(),
@@ -336,16 +359,23 @@ export function PortfolioProvider({ children }) {
         const res = await fetchProfileCloud();
         if (!mounted) return;
         if (res && res.success && res.profile) {
-          setProfile(prev => ({
-            ...prev,
-            ...res.profile,
-            social: { ...prev.social, ...(res.profile.social || {}) }
-          }));
+          setProfile(prev => {
+            const merged = {
+              ...prev,
+              ...res.profile,
+              social: { ...prev.social, ...(res.profile.social || {}) }
+            };
+            if (areProfilesEqual(prev, merged)) return prev;
+            return merged;
+          });
           if (Array.isArray(res.profile.certificates)) {
-            setCertificates(res.profile.certificates);
-            try {
-              localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(res.profile.certificates));
-            } catch {}
+            setCertificates(prev => {
+              if (JSON.stringify(prev) === JSON.stringify(res.profile.certificates)) return prev;
+              try {
+                localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(res.profile.certificates));
+              } catch {}
+              return res.profile.certificates;
+            });
           }
           setProfileSyncStatus({
             source: 'supabase',
@@ -365,16 +395,23 @@ export function PortfolioProvider({ children }) {
     const unsubProfile = subscribeToProfileCloud((cloudProfile) => {
       if (!mounted) return;
       if (cloudProfile && typeof cloudProfile === 'object') {
-        setProfile(prev => ({
-          ...prev,
-          ...cloudProfile,
-          social: { ...prev.social, ...(cloudProfile.social || {}) }
-        }));
+        setProfile(prev => {
+          const merged = {
+            ...prev,
+            ...cloudProfile,
+            social: { ...prev.social, ...(cloudProfile.social || {}) }
+          };
+          if (areProfilesEqual(prev, merged)) return prev;
+          return merged;
+        });
         if (Array.isArray(cloudProfile.certificates)) {
-          setCertificates(cloudProfile.certificates);
-          try {
-            localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(cloudProfile.certificates));
-          } catch {}
+          setCertificates(prev => {
+            if (JSON.stringify(prev) === JSON.stringify(cloudProfile.certificates)) return prev;
+            try {
+              localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(cloudProfile.certificates));
+            } catch {}
+            return cloudProfile.certificates;
+          });
         }
         setProfileSyncStatus({
           source: 'supabase',

@@ -90,21 +90,64 @@ export default function AdminDashboard() {
   // Profile Form State
   const [profileForm, setProfileForm] = useState({ ...profile });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const isProfileDirtyRef = useRef(false);
   const lastProfileRef = useRef(profile);
 
-  // Keep form synchronized when cloud profile loads or updates
+  // Form field update helpers that flag user edits
+  const updateProfileFormField = (field, value) => {
+    isProfileDirtyRef.current = true;
+    setProfileForm(p => ({ ...p, [field]: value }));
+  };
+
+  const updateProfileSocialField = (network, value) => {
+    isProfileDirtyRef.current = true;
+    setProfileForm(p => ({
+      ...p,
+      social: {
+        ...(p.social || {}),
+        [network]: value
+      }
+    }));
+  };
+
+  // Keep form synchronized when cloud profile loads initially or updates (only when not actively edited by admin)
   useEffect(() => {
     if (profile && profile !== lastProfileRef.current) {
       lastProfileRef.current = profile;
-      setProfileForm(p => ({
-        ...profile,
-        // preserve non-empty edits if user is actively typing
-        name: p.name || profile.name || '',
-        title: p.title || profile.title || '',
-        heroBio: p.heroBio || profile.heroBio || '',
-        aboutBio: p.aboutBio || profile.aboutBio || '',
-        profileImage: p.profileImage !== undefined ? p.profileImage : (profile.profileImage || '')
-      }));
+
+      // If admin has NOT made unsaved edits, synchronize cleanly from the loaded profile
+      if (!isProfileDirtyRef.current) {
+        setProfileForm({
+          ...profile,
+          social: {
+            github: profile.social?.github || '',
+            linkedin: profile.social?.linkedin || '',
+            instagram: profile.social?.instagram || '',
+            ...(profile.social || {})
+          }
+        });
+      } else {
+        // If user has unsaved edits in progress, preserve all active edits
+        setProfileForm(p => ({
+          ...profile,
+          name: p.name !== undefined ? p.name : (profile.name || ''),
+          title: p.title !== undefined ? p.title : (profile.title || ''),
+          heroBio: p.heroBio !== undefined ? p.heroBio : (profile.heroBio || ''),
+          aboutBio: p.aboutBio !== undefined ? p.aboutBio : (profile.aboutBio || ''),
+          aboutTitle: p.aboutTitle !== undefined ? p.aboutTitle : (profile.aboutTitle || ''),
+          email: p.email !== undefined ? p.email : (profile.email || ''),
+          phone: p.phone !== undefined ? p.phone : (profile.phone || ''),
+          location: p.location !== undefined ? p.location : (profile.location || ''),
+          profileImage: p.profileImage !== undefined ? p.profileImage : (profile.profileImage || ''),
+          social: {
+            github: p.social?.github !== undefined ? p.social.github : (profile.social?.github || ''),
+            linkedin: p.social?.linkedin !== undefined ? p.social.linkedin : (profile.social?.linkedin || ''),
+            instagram: p.social?.instagram !== undefined ? p.social.instagram : (profile.social?.instagram || ''),
+            ...(profile.social || {}),
+            ...(p.social || {})
+          }
+        }));
+      }
     }
   }, [profile]);
 
@@ -464,7 +507,7 @@ export default function AdminDashboard() {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
         const updated = { ...profileForm, profileImage: dataUrl };
         setProfileForm(updated);
-        
+
         // Auto-sync immediately to Supabase Cloud so mobile & live site update without delay
         setIsSavingProfile(true);
         updateProfile(updated).then(res => {
@@ -490,8 +533,10 @@ export default function AdminDashboard() {
     setIsSavingProfile(true);
     try {
       const res = await updateProfile(profileForm);
+      isProfileDirtyRef.current = false;
+      lastProfileRef.current = profileForm;
       if (res?.success) {
-        showToast('Profile & photo updated and synced live across all devices & mobile!');
+        showToast('Profile & contact details synced live across all devices & mobile!');
       } else {
         showToast('Saved locally. Cloud sync: ' + (res?.error || 'pending'));
       }
@@ -619,7 +664,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-scope min-h-screen md:h-screen md:overflow-hidden bg-warmwhite-200 text-stone-900 selection:bg-gold-500/20 selection:text-gold-900 font-sans relative flex flex-col">
-      
+
       {/* Background Subtle Gold Grid Overlay - GPU isolated */}
       <div className="fixed inset-0 tech-grid-pattern opacity-40 pointer-events-none z-0 transform-gpu will-change-transform" />
 
@@ -691,7 +736,7 @@ export default function AdminDashboard() {
       {/* Main Layout: Left Sidebar Navigation + Right Content View */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-0 relative z-10 md:overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-start md:h-full">
-          
+
           {/* ======================================================== */}
           {/* LEFT SIDEBAR NAVIGATION (Matching Reference Image 1) */}
           {/* ======================================================== */}
@@ -705,11 +750,10 @@ export default function AdminDashboard() {
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
                     type="button"
-                    className={`w-full text-left transition-all duration-150 flex items-center gap-3 cursor-pointer ${
-                      isActive
+                    className={`w-full text-left transition-all duration-150 flex items-center gap-3 cursor-pointer ${isActive
                         ? 'bg-white rounded-xl shadow-xs border border-gold-400/25 text-[#735118] font-bold px-3.5 py-2.5'
                         : 'text-stone-700 hover:text-stone-950 hover:bg-white/60 rounded-lg px-3.5 py-2 font-medium text-sm'
-                    }`}
+                      }`}
                   >
                     <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#8c6523]' : 'text-stone-500'}`} />
                     <span className="text-sm tracking-tight">{item.label}</span>
@@ -727,7 +771,7 @@ export default function AdminDashboard() {
             {/* TAB 1: OVERVIEW (Matching exact layout from user image) */}
             {activeTab === 'overview' && (
               <div className="space-y-5 animate-in fade-in duration-200">
-                
+
                 {/* Header Title & Subtitle */}
                 <div>
                   <h1 className="text-xl sm:text-2xl font-sans font-extrabold text-stone-900 tracking-tight">
@@ -896,11 +940,11 @@ export default function AdminDashboard() {
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-500/10 border border-gold-400/35 text-gold-950 text-[10px] font-sans font-semibold">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             <span>
-                              {profileSyncStatus?.isSyncing 
-                                ? 'Syncing...' 
-                                : profileSyncStatus?.lastChecked 
-                                ? 'Cloud Synced (Live & Mobile)' 
-                                : 'Live Cloud Sync'}
+                              {profileSyncStatus?.isSyncing
+                                ? 'Syncing...'
+                                : profileSyncStatus?.lastChecked
+                                  ? 'Cloud Synced (Live & Mobile)'
+                                  : 'Live Cloud Sync'}
                             </span>
                           </span>
                         </div>
@@ -938,7 +982,7 @@ export default function AdminDashboard() {
                     <input
                       type="url"
                       value={profileForm.profileImage || ''}
-                      onChange={(e) => setProfileForm(p => ({ ...p, profileImage: e.target.value }))}
+                      onChange={(e) => updateProfileFormField('profileImage', e.target.value)}
                       placeholder="https://example.com/my-photo.jpg (or upload file above)"
                       className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                     />
@@ -954,8 +998,8 @@ export default function AdminDashboard() {
                       </label>
                       <input
                         type="text"
-                        value={profileForm.name}
-                        onChange={(e) => setProfileForm(p => ({ ...p, name: e.target.value }))}
+                        value={profileForm.name || ''}
+                        onChange={(e) => updateProfileFormField('name', e.target.value)}
                         className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -966,8 +1010,8 @@ export default function AdminDashboard() {
                       </label>
                       <input
                         type="text"
-                        value={profileForm.title}
-                        onChange={(e) => setProfileForm(p => ({ ...p, title: e.target.value }))}
+                        value={profileForm.title || ''}
+                        onChange={(e) => updateProfileFormField('title', e.target.value)}
                         className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -979,8 +1023,8 @@ export default function AdminDashboard() {
                     </label>
                     <textarea
                       rows={2}
-                      value={profileForm.heroBio}
-                      onChange={(e) => setProfileForm(p => ({ ...p, heroBio: e.target.value }))}
+                      value={profileForm.heroBio || ''}
+                      onChange={(e) => updateProfileFormField('heroBio', e.target.value)}
                       className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
                     />
                   </div>
@@ -991,8 +1035,8 @@ export default function AdminDashboard() {
                     </label>
                     <textarea
                       rows={3}
-                      value={profileForm.aboutBio}
-                      onChange={(e) => setProfileForm(p => ({ ...p, aboutBio: e.target.value }))}
+                      value={profileForm.aboutBio || ''}
+                      onChange={(e) => updateProfileFormField('aboutBio', e.target.value)}
                       className="w-full px-3.5 py-2 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 leading-relaxed shadow-xs"
                     />
                   </div>
@@ -1284,11 +1328,10 @@ export default function AdminDashboard() {
                           <span className="px-2 py-0.5 rounded-md bg-gold-500/15 border border-gold-400/35 text-[10px] font-sans text-gold-900 font-bold uppercase">
                             {edu.type}
                           </span>
-                          <span className={`text-[11px] font-sans font-bold px-2.5 py-0.5 rounded-full border ${
-                            edu.status && edu.status.toLowerCase().includes('completed')
+                          <span className={`text-[11px] font-sans font-bold px-2.5 py-0.5 rounded-full border ${edu.status && edu.status.toLowerCase().includes('completed')
                               ? 'text-emerald-800 bg-emerald-50 border-emerald-200'
                               : 'text-gold-900 bg-gold-500/10 border-gold-400/30'
-                          }`}>
+                            }`}>
                             {edu.status}
                           </span>
                         </div>
@@ -1399,7 +1442,7 @@ export default function AdminDashboard() {
             {/* TAB: CERTIFICATIONS & ACCREDITATIONS */}
             {activeTab === 'certifications' && (
               <div className="space-y-4 animate-in fade-in duration-200">
-                
+
                 {/* Header Banner */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-white/95 border border-gold-400/30 shadow-gold-card">
                   <div>
@@ -1579,7 +1622,7 @@ export default function AdminDashboard() {
                         type="email"
                         required
                         value={profileForm.email || ''}
-                        onChange={(e) => setProfileForm(p => ({ ...p, email: e.target.value }))}
+                        onChange={(e) => updateProfileFormField('email', e.target.value)}
                         placeholder="e.g. bharathlokesh07@gmail.com"
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
@@ -1596,7 +1639,7 @@ export default function AdminDashboard() {
                         type="text"
                         required
                         value={profileForm.phone || ''}
-                        onChange={(e) => setProfileForm(p => ({ ...p, phone: e.target.value }))}
+                        onChange={(e) => updateProfileFormField('phone', e.target.value)}
                         placeholder="e.g. +91 9611673039"
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
@@ -1612,7 +1655,7 @@ export default function AdminDashboard() {
                       <input
                         type="text"
                         value={profileForm.location || ''}
-                        onChange={(e) => setProfileForm(p => ({ ...p, location: e.target.value }))}
+                        onChange={(e) => updateProfileFormField('location', e.target.value)}
                         placeholder="e.g. Tumkur, Karnataka, India"
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
@@ -1638,10 +1681,7 @@ export default function AdminDashboard() {
                       <input
                         type="url"
                         value={profileForm.social?.github || ''}
-                        onChange={(e) => setProfileForm(p => ({
-                          ...p,
-                          social: { ...(p.social || {}), github: e.target.value }
-                        }))}
+                        onChange={(e) => updateProfileSocialField('github', e.target.value)}
                         placeholder="https://github.com/..."
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
@@ -1654,10 +1694,7 @@ export default function AdminDashboard() {
                       <input
                         type="url"
                         value={profileForm.social?.linkedin || ''}
-                        onChange={(e) => setProfileForm(p => ({
-                          ...p,
-                          social: { ...(p.social || {}), linkedin: e.target.value }
-                        }))}
+                        onChange={(e) => updateProfileSocialField('linkedin', e.target.value)}
                         placeholder="https://linkedin.com/in/..."
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
@@ -1670,10 +1707,7 @@ export default function AdminDashboard() {
                       <input
                         type="url"
                         value={profileForm.social?.instagram || ''}
-                        onChange={(e) => setProfileForm(p => ({
-                          ...p,
-                          social: { ...(p.social || {}), instagram: e.target.value }
-                        }))}
+                        onChange={(e) => updateProfileSocialField('instagram', e.target.value)}
                         placeholder="https://instagram.com/..."
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
@@ -1791,11 +1825,10 @@ export default function AdminDashboard() {
                       {inquiries.map((inq) => (
                         <div
                           key={inq.id}
-                          className={`p-3.5 sm:p-4 rounded-xl border transition-all ${
-                            inq.read
+                          className={`p-3.5 sm:p-4 rounded-xl border transition-all ${inq.read
                               ? 'bg-warmwhite-50/80 border-gold-400/20'
                               : 'bg-white border-gold-400/50 shadow-sm ring-1 ring-gold-400/20'
-                          }`}
+                            }`}
                         >
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 mb-1.5">
                             <div className="flex items-center gap-2">
@@ -1876,8 +1909,8 @@ export default function AdminDashboard() {
                       </label>
                       <input
                         type="email"
-                        value={profileForm.email}
-                        onChange={(e) => setProfileForm(p => ({ ...p, email: e.target.value }))}
+                        value={profileForm.email || ''}
+                        onChange={(e) => updateProfileFormField('email', e.target.value)}
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -1888,8 +1921,8 @@ export default function AdminDashboard() {
                       </label>
                       <input
                         type="text"
-                        value={profileForm.phone}
-                        onChange={(e) => setProfileForm(p => ({ ...p, phone: e.target.value }))}
+                        value={profileForm.phone || ''}
+                        onChange={(e) => updateProfileFormField('phone', e.target.value)}
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -1900,8 +1933,8 @@ export default function AdminDashboard() {
                       </label>
                       <input
                         type="text"
-                        value={profileForm.location}
-                        onChange={(e) => setProfileForm(p => ({ ...p, location: e.target.value }))}
+                        value={profileForm.location || ''}
+                        onChange={(e) => updateProfileFormField('location', e.target.value)}
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -1915,7 +1948,7 @@ export default function AdminDashboard() {
                       <input
                         type="url"
                         value={profileForm.social?.github || ''}
-                        onChange={(e) => setProfileForm(p => ({ ...p, social: { ...p.social, github: e.target.value } }))}
+                        onChange={(e) => updateProfileSocialField('github', e.target.value)}
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -1927,7 +1960,7 @@ export default function AdminDashboard() {
                       <input
                         type="url"
                         value={profileForm.social?.linkedin || ''}
-                        onChange={(e) => setProfileForm(p => ({ ...p, social: { ...p.social, linkedin: e.target.value } }))}
+                        onChange={(e) => updateProfileSocialField('linkedin', e.target.value)}
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -1939,7 +1972,7 @@ export default function AdminDashboard() {
                       <input
                         type="url"
                         value={profileForm.social?.instagram || ''}
-                        onChange={(e) => setProfileForm(p => ({ ...p, social: { ...p.social, instagram: e.target.value } }))}
+                        onChange={(e) => updateProfileSocialField('instagram', e.target.value)}
                         className="w-full px-3.5 py-1.5 rounded-xl bg-warmwhite-50 border border-gold-400/35 text-xs sm:text-sm text-stone-900 font-sans focus:outline-none focus:border-gold-500 shadow-xs"
                       />
                     </div>
@@ -1981,11 +2014,10 @@ export default function AdminDashboard() {
                   </p>
 
                   {passwordFeedback.text && (
-                    <div className={`p-2.5 rounded-xl mb-3 text-xs font-sans ${
-                      passwordFeedback.type === 'error'
+                    <div className={`p-2.5 rounded-xl mb-3 text-xs font-sans ${passwordFeedback.type === 'error'
                         ? 'bg-red-50 border border-red-200 text-red-700'
                         : 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-                    }`}>
+                      }`}>
                       {passwordFeedback.text}
                     </div>
                   )}
@@ -2114,7 +2146,7 @@ export default function AdminDashboard() {
       {isProjectModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-md animate-in fade-in">
           <div className="w-full max-w-2xl bg-white border border-gold-400/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-gold-900/20 max-h-[90vh] overflow-y-auto">
-            
+
             <div className="flex items-center justify-between pb-4 mb-6 border-b border-gold-400/20">
               <h3 className="text-lg font-sans font-bold text-stone-900">
                 {editingProjectId ? 'Edit Project Details' : 'Add New Project'}
