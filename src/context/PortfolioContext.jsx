@@ -202,15 +202,15 @@ export function PortfolioProvider({ children }) {
   const areProfilesEqual = (p1, p2) => {
     if (!p1 || !p2) return false;
     return (
-      p1.name === p2.name &&
-      p1.title === p2.title &&
-      p1.profileImage === p2.profileImage &&
-      p1.heroBio === p2.heroBio &&
-      p1.aboutTitle === p2.aboutTitle &&
-      p1.aboutBio === p2.aboutBio &&
-      p1.email === p2.email &&
-      p1.phone === p2.phone &&
-      p1.location === p2.location &&
+      (p1.name || '') === (p2.name || '') &&
+      (p1.title || '') === (p2.title || '') &&
+      (p1.profileImage || '') === (p2.profileImage || '') &&
+      (p1.heroBio || '') === (p2.heroBio || '') &&
+      (p1.aboutTitle || '') === (p2.aboutTitle || '') &&
+      (p1.aboutBio || '') === (p2.aboutBio || '') &&
+      (p1.email || '') === (p2.email || '') &&
+      (p1.phone || '') === (p2.phone || '') &&
+      (p1.location || '') === (p2.location || '') &&
       (p1.social?.github || '') === (p2.social?.github || '') &&
       (p1.social?.linkedin || '') === (p2.social?.linkedin || '') &&
       (p1.social?.instagram || '') === (p2.social?.instagram || '')

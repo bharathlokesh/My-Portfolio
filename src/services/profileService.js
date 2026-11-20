@@ -102,6 +102,11 @@ export async function saveProfileCloud(profileData) {
       }
 
       if (!error && data) {
+        if (typeof localStorage !== 'undefined') {
+          try {
+            localStorage.setItem(LOCAL_PROFILE_KEY, payload);
+          } catch {}
+        }
         return { success: true, profile: profileData, recordId: primaryId };
       }
       console.warn('Supabase profile update error:', error);

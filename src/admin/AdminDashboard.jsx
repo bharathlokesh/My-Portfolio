@@ -88,19 +88,27 @@ export default function AdminDashboard() {
   });
 
   // Profile Form State
-  const [profileForm, setProfileForm] = useState({ ...profile });
+  const [profileForm, setProfileForm] = useState(() => ({
+    ...profile,
+    social: {
+      github: profile.social?.github || '',
+      linkedin: profile.social?.linkedin || '',
+      instagram: profile.social?.instagram || '',
+      ...(profile.social || {})
+    }
+  }));
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const isProfileDirtyRef = useRef(false);
-  const lastProfileRef = useRef(profile);
+  const hasUserEditedRef = useRef(false);
+  const hasLoadedInitialCloudRef = useRef(false);
 
-  // Form field update helpers that flag user edits
+  // Form field update helpers that update state immediately and mark edited
   const updateProfileFormField = (field, value) => {
-    isProfileDirtyRef.current = true;
+    hasUserEditedRef.current = true;
     setProfileForm(p => ({ ...p, [field]: value }));
   };
 
   const updateProfileSocialField = (network, value) => {
-    isProfileDirtyRef.current = true;
+    hasUserEditedRef.current = true;
     setProfileForm(p => ({
       ...p,
       social: {
@@ -110,13 +118,10 @@ export default function AdminDashboard() {
     }));
   };
 
-  // Keep form synchronized when cloud profile loads initially or updates (only when not actively edited by admin)
+  // Only synchronize ONCE on initial cloud load if the admin has not started typing
   useEffect(() => {
-    if (profile && profile !== lastProfileRef.current) {
-      lastProfileRef.current = profile;
-
-      // If admin has NOT made unsaved edits, synchronize cleanly from the loaded profile
-      if (!isProfileDirtyRef.current) {
+    if (profile && !hasLoadedInitialCloudRef.current) {
+      if (!hasUserEditedRef.current) {
         setProfileForm({
           ...profile,
           social: {
@@ -126,28 +131,8 @@ export default function AdminDashboard() {
             ...(profile.social || {})
           }
         });
-      } else {
-        // If user has unsaved edits in progress, preserve all active edits
-        setProfileForm(p => ({
-          ...profile,
-          name: p.name !== undefined ? p.name : (profile.name || ''),
-          title: p.title !== undefined ? p.title : (profile.title || ''),
-          heroBio: p.heroBio !== undefined ? p.heroBio : (profile.heroBio || ''),
-          aboutBio: p.aboutBio !== undefined ? p.aboutBio : (profile.aboutBio || ''),
-          aboutTitle: p.aboutTitle !== undefined ? p.aboutTitle : (profile.aboutTitle || ''),
-          email: p.email !== undefined ? p.email : (profile.email || ''),
-          phone: p.phone !== undefined ? p.phone : (profile.phone || ''),
-          location: p.location !== undefined ? p.location : (profile.location || ''),
-          profileImage: p.profileImage !== undefined ? p.profileImage : (profile.profileImage || ''),
-          social: {
-            github: p.social?.github !== undefined ? p.social.github : (profile.social?.github || ''),
-            linkedin: p.social?.linkedin !== undefined ? p.social.linkedin : (profile.social?.linkedin || ''),
-            instagram: p.social?.instagram !== undefined ? p.social.instagram : (profile.social?.instagram || ''),
-            ...(profile.social || {}),
-            ...(p.social || {})
-          }
-        }));
       }
+      hasLoadedInitialCloudRef.current = true;
     }
   }, [profile]);
 
@@ -533,8 +518,7 @@ export default function AdminDashboard() {
     setIsSavingProfile(true);
     try {
       const res = await updateProfile(profileForm);
-      isProfileDirtyRef.current = false;
-      lastProfileRef.current = profileForm;
+      hasUserEditedRef.current = false;
       if (res?.success) {
         showToast('Profile & contact details synced live across all devices & mobile!');
       } else {
